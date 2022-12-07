@@ -1,15 +1,26 @@
 # venv-manager
 
-Manage global venv's
+Manage venv's
 
-Enter env
+Enter or create env
+
 ```
 > venv env1
-(env1) > 
-```
-Create venv
-```
-> venv env2 -c 311
+
 Python 3.11.0
-(env2) > 
+(env1) >
+```
+
+Create venv with specific version
+
+```
+> venv env2 -c 10
+Python 3.10.6
+(env2) >
+```
+
+delete envs (deactivate then delete if in use)
+
+```
+venv -d env2
 ```

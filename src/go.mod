@@ -1,3 +1,3 @@
-module venv
+module govenv
 
 go 1.19
