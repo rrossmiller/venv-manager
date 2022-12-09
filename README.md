@@ -1,4 +1,5 @@
 # venv-manager
+Requires brew for mac
 
 Manage venv's
 
