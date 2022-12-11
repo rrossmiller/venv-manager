@@ -3,8 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
-	"os/exec"
+	"runtime"
 )
 
 /*
@@ -32,33 +33,45 @@ venv -d env2
 ```
 */
 
+var (
+	home = os.Getenv("HOME")
+	user = os.Getenv("USER")
+	// gopath = os.Getenv("GOPATH")
+	newLine     = "\n"
+	VENV_PATH   string
+	historyPath string
+)
+
+func init() {
+	if user == "" {
+		log.Fatal("$USER not set")
+	}
+
+	os := runtime.GOOS
+	if home == "" {
+		switch os {
+		case "darwin":
+			fmt.Println(os)
+		case "windows": // checkme
+			newLine = "\r\n"
+		}
+		home = "/USERS/" + user
+	}
+	VENV_PATH = home + "/.venv"
+	historyPath = home + "/.venv/history"
+	// fmt.Printf("USER: %s\nHOME: %s\nOS: %s", user, home, os)
+}
+
 func main() {
-	createFlag := flag.Bool("c", false, "Create a new venv")
-	t := flag.Bool("p", false, "Create a new venv")
+	interactive := flag.Bool("i", false, "Interactive mode")
+	// createFlag := flag.Bool("c", false, "Create a new venv")
+	// freezeAllFlag := flag.Bool("F", false, "Freeze the current state of all venvs")
 
 	flag.Parse()
-	fmt.Println(*createFlag)
-	fmt.Println(*t)
 	args := flag.Args()
-	fmt.Println(args)
-	if len(args) == 0 && !*createFlag {
-		flag.CommandLine.Usage()
-		os.Exit(0)
+
+	if *interactive {
+		InteractiveMode(args)
 	}
-	// fmt.Println("python3 -m venv venv; source venv/bin/activate")
-}
-
-func Check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
-
-func Err(message string, code int) {
-	fmt.Println(message)
-	os.Exit(code)
-}
-
-func Finish() {
-	exec.Command("rzshrc").Output()
+	Cleanup()
 }
