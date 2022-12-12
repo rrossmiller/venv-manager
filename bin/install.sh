@@ -1,6 +1,6 @@
 #! /bin/bash
 git clone https://github.com/rrossmiller/venv-manager.git ~/.venv-manager && \
-cd venv-manager/src
+cd ~/.venv-manager/src
 go build && \
 sudo mv govenv /usr/local/bin
 echo "add this to your .bashrc or .zshrc"
