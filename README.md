@@ -1,5 +1,7 @@
 # venv-manager
 
+![](example.gif)
+
 ## Install
 
 ```
