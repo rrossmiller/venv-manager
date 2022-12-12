@@ -1,4 +1,7 @@
 clear
 cd ../src
-GOOS=darwin	GOOARCH=amd64 go build && mv govenv ../bin/govenv-darwin-amd64
-GOOS=darwin	GOOARCH=arm64 go build && mv govenv ../bin/govenv-darwin-arm64
+echo AMD64
+GOOS=darwin	GOARCH=amd64 go build -o ../bin/govenv-darwin-amd64
+
+echo ARCH64
+GOOS=darwin	GOARCH=arm64 go build -o ../bin/govenv-darwin-arm64
