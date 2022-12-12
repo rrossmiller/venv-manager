@@ -1,4 +1,4 @@
-#! /bin/zsh
+#! /bin/bash
 cd src
 go build
 sudo mv govenv /usr/local/bin
