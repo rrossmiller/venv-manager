@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
+	"unicode/utf8"
 )
 
 func GetInput(prompt string) string {
@@ -48,20 +50,30 @@ func Cleanup() {
 	Check(err)
 	defer f.Close()
 	info, _ := f.Stat()
+	// if the file is greater than 500b
+	if info.Size() > 500 {
+		// seek to the last 100 bytes
+		seekCap := 100
+		s := info.Size() - int64(seekCap)
+		_, err := f.Seek(s, 0)
+		Check(err)
 
-	if info.Size() > 1 { //1e6 {
-		// fmt.Println(info.Size())
+		// read the last 100 bytes
+		end := make([]byte, seekCap)
+		_, err = f.Read(end)
+		Check(err)
 
-		// i, err := f.Seek(-30, 2)
-		// fmt.Println(i)
-		// Check(err)
-		// var end []byte
-		// i64, err := f.Read(end)
-		// fmt.Println(i64)
-		// Check(err)
-		// endStr := strings.Split(string(end), "\n")
-		// fmt.Println(endStr)
-		// // err = os.Remove(historyPath)
-		// Check(err)
+		// find the last line with text
+		endStrSpl := strings.Split(string(end), "\n")
+		idx := 1
+		endStr := strings.TrimSpace(endStrSpl[len(endStrSpl)-idx])
+		for utf8.RuneCountInString(endStr) == 0 && idx < len(endStrSpl) {
+			idx++
+			endStr = strings.TrimSpace(endStrSpl[len(endStrSpl)-idx])
+		}
+
+		err = os.Remove(historyPath)
+		Check(err)
+		WriteCmd(endStr)
 	}
 }

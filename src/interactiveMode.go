@@ -76,7 +76,7 @@ func InteractiveMode(args []string) {
 	case DELETE:
 		err := os.RemoveAll(fmt.Sprintf("%s/%s", VENV_PATH, name))
 		Check(err)
-		cmd = fmt.Sprintf("echo Deleting %s/%s\n", VENV_PATH, name)
+		cmd = fmt.Sprintf("echo Deleting %s/%s", VENV_PATH, name)
 
 	case ACIVATE:
 		fmt.Printf("Activating %s/%s\n", VENV_PATH, name)

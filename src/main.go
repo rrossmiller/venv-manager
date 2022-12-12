@@ -54,11 +54,8 @@ func init() {
 	if home == "" {
 		switch runtimeOS {
 		case "darwin":
-			fmt.Println(runtimeOS)
-		case "windows": // checkme
-			newLine = "\r\n"
+			home = "/Users" + user
 		}
-		home = "/USERS/" + user
 	}
 	VENV_PATH = home + "/.venv"
 	historyPath = home + "/.venv/history"
