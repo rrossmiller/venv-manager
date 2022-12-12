@@ -1,9 +1,19 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 )
+
+func GetInput(prompt string) string {
+	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Print(prompt)
+	scanner.Scan()
+	err := scanner.Err()
+	Check(err)
+	return scanner.Text()
+}
 
 func WriteCmd(cmd string) {
 	// append to history file
@@ -22,6 +32,11 @@ func Check(e error) {
 	}
 }
 
+func CheckChoice(choice string) {
+	if choice == "" {
+		os.Exit(64)
+	}
+}
 func Err(message string, code int) {
 	fmt.Println(message)
 	os.Exit(code)
@@ -35,7 +50,7 @@ func Cleanup() {
 	info, _ := f.Stat()
 
 	if info.Size() > 1 { //1e6 {
-		fmt.Println(info.Size())
+		// fmt.Println(info.Size())
 
 		// i, err := f.Seek(-30, 2)
 		// fmt.Println(i)

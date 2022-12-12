@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -47,11 +48,11 @@ func init() {
 		log.Fatal("$USER not set")
 	}
 
-	os := runtime.GOOS
+	runtimeOS := runtime.GOOS
 	if home == "" {
-		switch os {
+		switch runtimeOS {
 		case "darwin":
-			fmt.Println(os)
+			fmt.Println(runtimeOS)
 		case "windows": // checkme
 			newLine = "\r\n"
 		}
@@ -59,11 +60,15 @@ func init() {
 	}
 	VENV_PATH = home + "/.venv"
 	historyPath = home + "/.venv/history"
-	// fmt.Printf("USER: %s\nHOME: %s\nOS: %s", user, home, os)
+
+	// make ~/.venv if it doesn't exist
+	if _, err := os.Stat(VENV_PATH); errors.Is(err, os.ErrNotExist) {
+		os.Mkdir(VENV_PATH, 0755)
+	}
 }
 
 func main() {
-	interactive := flag.Bool("i", false, "Interactive mode")
+	interactive := flag.Bool("i", true, "Interactive mode")
 	// createFlag := flag.Bool("c", false, "Create a new venv")
 	// freezeAllFlag := flag.Bool("F", false, "Freeze the current state of all venvs")
 
