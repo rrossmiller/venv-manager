@@ -1,6 +1,29 @@
 # venv-manager
-Requires brew for mac
 
+## Install
+
+```
+curl -s https://raw.githubusercontent.com/rrossmiller/venv-manager/main/bin/install.sh | bash
+```
+
+Copy the function that it prints out into your ~/.zhsrc or bashrc
+```
+function venv(){
+    clear
+    govenv $@
+    if [[ $? -eq 0 ]]; then
+        eval `tail -n 1 ~/.venv/history`
+        clear
+    fi
+}
+```
+```
+source ~/.zshrc #(or bash)
+venv
+```
+
+
+<!-- 
 Manage venv's
 
 Enter or create env
@@ -24,4 +47,4 @@ delete envs (deactivate then delete if in use)
 
 ```
 venv -d env2
-```
+``` -->
