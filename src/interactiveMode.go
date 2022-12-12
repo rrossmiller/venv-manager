@@ -32,7 +32,7 @@ func InteractiveMode(args []string) {
 	// show existing venvs
 	if choice != CREATE {
 		// add functionality to list venvs
-		venvs, err := os.ReadDir(home + "/.venv")
+		venvs, err := os.ReadDir(VENV_PATH)
 		Check(err)
 
 		// first entry of venv is the dir itself

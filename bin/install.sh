@@ -52,16 +52,15 @@ if [[ ok -eq 1 ]]; then
     sudo mv govenv /usr/local/bin
     echo
     echo "add this to your .bashrc or .zshrc"
-    echo "
+    echo '
 function venv(){
     clear
-    govenv \$@
+    govenv $@
     if [[ $? -eq 0 ]]; then
-        eval \`tail -n 1 ~/.venv/history\`
+        eval `tail -n 1 ~/.venv/history`
         clear
     fi
-}
-    "
+}'
 else
     echo "something went wrong"
     echo "ok=$ok, appleSilicon=$appleSilicon"

@@ -7,6 +7,8 @@ import (
 	"log"
 	"os"
 	"runtime"
+
+	"github.com/buger/goterm"
 )
 
 /*
@@ -69,13 +71,29 @@ func init() {
 
 func main() {
 	interactive := flag.Bool("i", true, "Interactive mode")
+	list := flag.Bool("l", false, "List venv's")
 	// createFlag := flag.Bool("c", false, "Create a new venv")
 	// freezeAllFlag := flag.Bool("F", false, "Freeze the current state of all venvs")
 
 	flag.Parse()
 	args := flag.Args()
+	if *list {
+		venvs, err := os.ReadDir(VENV_PATH)
+		Check(err)
 
-	if *interactive {
+		// first entry of venv is the dir itself
+		if len(venvs) < 2 {
+			fmt.Println("There are no venvs to list")
+			os.Exit(72) // exit codes: https://www.freebsd.org/cgi/man.cgi?query=sysexits&apropos=0&sektion=0&manpath=FreeBSD+14.0-CURRENT&arch=default&format=pdf
+		}
+		fmt.Println(goterm.Bold(goterm.Color("Available venv's", goterm.CYAN)))
+		for _, v := range venvs {
+			if v.IsDir() {
+				fmt.Println(goterm.Color(v.Name(), goterm.YELLOW))
+			}
+		}
+		os.Exit(-1)
+	} else if *interactive {
 		InteractiveMode(args)
 	}
 	Cleanup()
