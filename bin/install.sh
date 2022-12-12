@@ -14,22 +14,22 @@ $$\    $$\  $$$$$$\  $$$$$$$\ $$\    $$\       $$$$\  $$$$ | $$$$$$\  $$$$$$$\  
                                                                                           \$$$$$$  |                    
                                                                                            \______/                     
 '
-read -q "?Is your computer using Mac Silicon? (y/n) " macSilicon
-ok=false
+read -q "?Is your computer using Apple Silicon? (y/n) " appleSilicon
+ok=0
 
-if [[ $macSilicon == "y" ]]; then
+if [[ $appleSilicon == "y" ]]; then
     curl -sLJo govenv \
         -H "Accept: application/octet-stream" \
-        https://github.com/rrossmiller/venv-manager/releases/download/0.0.1/govenv-arm64
-    ok=true
-elif [[ $macSilicon = "n" ]]; then
+        https://github.com/rrossmiller/venv-manager/releases/download/0.0.1/govenv-darwin-arm64
+    ok=1
+elif [[ $appleSilicon = "n" ]]; then
     curl -sLJo govenv \
         -H "Accept: application/octet-stream" \
-        https://github.com/rrossmiller/venv-manager/releases/download/0.0.1/govenv-amd64
-    ok=false
+        https://github.com/rrossmiller/venv-manager/releases/download/0.0.1/govenv-darwin-amd64
+    ok=1
 fi
 
-if [[ ok ]]; then
+if [[ ok -eq 1 ]]; then
     chmod +x govenv
     sudo mv govenv /usr/local/bin
     echo "add this to your .bashrc or .zshrc"
@@ -45,5 +45,5 @@ function venv(){
 "
 else
     echo "something went wrong"
-    echo "ok=$ok, macSilicon=$macSilicon"
+    echo "ok=$ok, appleSilicon=$appleSilicon"
 fi
