@@ -2,32 +2,49 @@
 clear
 # credit where credit's due: https://patorjk.com/software/taag/#p=display&f=Big%20Money-nw&t=venv%20Manager
 echo '
-                                               $$\      $$\                                                             
-                                               $$$\    $$$ |                                                            
-$$\    $$\  $$$$$$\  $$$$$$$\ $$\    $$\       $$$$\  $$$$ | $$$$$$\  $$$$$$$\   $$$$$$\   $$$$$$\   $$$$$$\   $$$$$$\  
-\$$\  $$  |$$  __$$\ $$  __$$\\$$\  $$  |      $$\$$\$$ $$ | \____$$\ $$  __$$\  \____$$\ $$  __$$\ $$  __$$\ $$  __$$\ 
+                                               $$\      $$\
+                                               $$$\    $$$ |
+$$\    $$\  $$$$$$\  $$$$$$$\ $$\    $$\       $$$$\  $$$$ | $$$$$$\  $$$$$$$\   $$$$$$\   $$$$$$\   $$$$$$\   $$$$$$\
+\$$\  $$  |$$  __$$\ $$  __$$\\$$\  $$  |      $$\$$\$$ $$ | \____$$\ $$  __$$\  \____$$\ $$  __$$\ $$  __$$\ $$  __$$\
  \$$\$$  / $$$$$$$$ |$$ |  $$ |\$$\$$  /       $$ \$$$  $$ | $$$$$$$ |$$ |  $$ | $$$$$$$ |$$ /  $$ |$$$$$$$$ |$$ |  \__|
-  \$$$  /  $$   ____|$$ |  $$ | \$$$  /        $$ |\$  /$$ |$$  __$$ |$$ |  $$ |$$  __$$ |$$ |  $$ |$$   ____|$$ |      
-   \$  /   \$$$$$$$\ $$ |  $$ |  \$  /         $$ | \_/ $$ |\$$$$$$$ |$$ |  $$ |\$$$$$$$ |\$$$$$$$ |\$$$$$$$\ $$ |      
-    \_/     \_______|\__|  \__|   \_/          \__|     \__| \_______|\__|  \__| \_______| \____$$ | \_______|\__|      
-                                                                                          $$\   $$ |                    
-                                                                                          \$$$$$$  |                    
-                                                                                           \______/                     
+  \$$$  /  $$   ____|$$ |  $$ | \$$$  /        $$ |\$  /$$ |$$  __$$ |$$ |  $$ |$$  __$$ |$$ |  $$ |$$   ____|$$ |
+   \$  /   \$$$$$$$\ $$ |  $$ |  \$  /         $$ | \_/ $$ |\$$$$$$$ |$$ |  $$ |\$$$$$$$ |\$$$$$$$ |\$$$$$$$\ $$ |
+    \_/     \_______|\__|  \__|   \_/          \__|     \__| \_______|\__|  \__| \_______| \____$$ | \_______|\__|
+                                                                                          $$\   $$ |
+                                                                                          \$$$$$$  |
+                                                                                           \______/
 '
-read -q "?Is your computer using Apple Silicon? (y/n) " appleSilicon
+arch=`uname -m`
+os=`uname`
+echo "Downloading venv command for: $os $arch"
+
 ok=0
-echo
-echo "Downloading venv binary..."
+
+# check if it's and M1 mac
+if [[ $os == "Darwin" && $arch == "arm64" ]]; then
+    appleSilicon="y"
+elif [[ $os == "Darwin" && $arch != "arm64" ]]; then
+    appleSilicon="n"
+fi
+
 if [[ $appleSilicon == "y" ]]; then
     curl -sLJo govenv \
         -H "Accept: application/octet-stream" \
         https://github.com/rrossmiller/venv-manager/releases/download/0.0.1/govenv-darwin-arm64
     ok=1
+
 elif [[ $appleSilicon = "n" ]]; then
     curl -sLJo govenv \
         -H "Accept: application/octet-stream" \
         https://github.com/rrossmiller/venv-manager/releases/download/0.0.1/govenv-darwin-amd64
     ok=1
+
+else
+    curl -sLJo govenv \
+        -H "Accept: application/octet-stream" \
+        https://github.com/rrossmiller/venv-manager/releases/download/0.0.1/govenv-windows-amd64
+    ok=1
+
 fi
 
 if [[ ok -eq 1 ]]; then
@@ -44,7 +61,7 @@ function venv(){
         clear
     fi
 }
-"
+    "
 else
     echo "something went wrong"
     echo "ok=$ok, appleSilicon=$appleSilicon"
