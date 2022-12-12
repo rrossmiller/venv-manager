@@ -16,7 +16,8 @@ $$\    $$\  $$$$$$\  $$$$$$$\ $$\    $$\       $$$$\  $$$$ | $$$$$$\  $$$$$$$\  
 '
 read -q "?Is your computer using Apple Silicon? (y/n) " appleSilicon
 ok=0
-
+echo
+echo "Downloading venv binary..."
 if [[ $appleSilicon == "y" ]]; then
     curl -sLJo govenv \
         -H "Accept: application/octet-stream" \
@@ -32,6 +33,7 @@ fi
 if [[ ok -eq 1 ]]; then
     chmod +x govenv
     sudo mv govenv /usr/local/bin
+    echo
     echo "add this to your .bashrc or .zshrc"
     echo "
 function venv(){
