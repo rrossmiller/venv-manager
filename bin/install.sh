@@ -36,7 +36,7 @@ if [[ ok -eq 1 ]]; then
     echo "
 function venv(){
     clear
-    govenv $@
+    govenv \$@
     if [[ $? -eq 0 ]]; then
         eval \`tail -n 1 ~/.venv/history\`
         clear
