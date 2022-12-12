@@ -3,7 +3,7 @@
 ## Install
 
 ```
-curl -s https://raw.githubusercontent.com/rrossmiller/venv-manager/main/bin/install.sh | bash
+curl https://raw.githubusercontent.com/rrossmiller/venv-manager/main/bin/install.sh | bash
 ```
 
 Copy the function that it prints out into your ~/.zhsrc or bashrc
