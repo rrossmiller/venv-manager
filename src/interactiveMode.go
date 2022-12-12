@@ -16,7 +16,7 @@ const (
 )
 
 func InteractiveMode(args []string) {
-	menu := gocliselect.NewMenu("Pick one")
+	menu := gocliselect.NewMenu("venv Manager")
 	menu.VimKeys = true
 
 	menu.AddItem("Acivate", ACIVATE)
