@@ -67,7 +67,7 @@ func init() {
 }
 
 func main() {
-	interactive := flag.Bool("i", true, "Interactive mode")
+	interactive := flag.Bool("i", false, "Interactive mode")
 	list := flag.Bool("l", false, "List venv's")
 	// createFlag := flag.Bool("c", false, "Create a new venv")
 	// freezeAllFlag := flag.Bool("F", false, "Freeze the current state of all venvs")
@@ -90,8 +90,13 @@ func main() {
 			}
 		}
 		os.Exit(-1)
-	} else if *interactive {
+	} else if *interactive || len(args) == 0 {
 		InteractiveMode(args)
+	} else if len(args) != 0 {
+		name := args[0]
+		cmd := fmt.Sprintf("source %s/%s/bin/activate", VENV_PATH, name)
+
+		WriteCmd(cmd)
 	}
 	Cleanup()
 }

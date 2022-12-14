@@ -44,8 +44,8 @@ func Err(message string, code int) {
 	os.Exit(code)
 }
 
+// limit history file size
 func Cleanup() {
-	// limit history file size
 	f, err := os.OpenFile(historyPath, os.O_RDONLY, 0644)
 	Check(err)
 	defer f.Close()
