@@ -30,19 +30,19 @@ fi
 if [[ $appleSilicon == "y" ]]; then
     curl -sLJo govenv \
         -H "Accept: application/octet-stream" \
-        https://github.com/rrossmiller/venv-manager/releases/download/0.0.1/govenv-darwin-arm64
+        https://github.com/rrossmiller/venv-manager/releases/download/0.1.0/govenv-darwin-arm64
     ok=1
 
 elif [[ $appleSilicon = "n" ]]; then
     curl -sLJo govenv \
         -H "Accept: application/octet-stream" \
-        https://github.com/rrossmiller/venv-manager/releases/download/0.0.1/govenv-darwin-amd64
+        https://github.com/rrossmiller/venv-manager/releases/download/0.1.0/govenv-darwin-amd64
     ok=1
 
 else
     curl -sLJo govenv \
         -H "Accept: application/octet-stream" \
-        https://github.com/rrossmiller/venv-manager/releases/download/0.0.1/govenv-windows-amd64
+        https://github.com/rrossmiller/venv-manager/releases/download/0.1.0/govenv-windows-amd64
     ok=1
 
 fi
