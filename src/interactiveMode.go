@@ -50,7 +50,7 @@ func InteractiveMode(args []string) {
 			}
 		}
 		name = venvMenu.Display()
-		CheckChoice(choice)
+		CheckChoice(name)
 
 	} else {
 		gocliselect.ClearScreen(len(menu.MenuItems) + 1)
