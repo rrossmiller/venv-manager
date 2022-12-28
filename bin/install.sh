@@ -44,10 +44,10 @@ elif [[ $appleSilicon = "n" ]]; then
 else
     echo "no windows support"
     exit 1
-    curl -sLJo govenv \
-        -H "Accept: application/octet-stream" \
-        https://github.com/rrossmiller/venv-manager/releases/download/$VERSION/govenv-windows-amd64
-    ok=1
+    # curl -sLJo govenv \
+    #     -H "Accept: application/octet-stream" \
+    #     https://github.com/rrossmiller/venv-manager/releases/download/$VERSION/govenv-windows-amd64
+    # ok=1
 
 fi
 

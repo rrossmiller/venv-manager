@@ -9,6 +9,4 @@ GOOS=darwin GOARCH=arm64 go build -o ../bin/govenv-darwin-arm64
 VERSION=0.1.1
 echo "Update version in install.sh to $VERSION"
 echo
-gh release create
-gh release upload $VERSION govenv-darwin-arm64 govenv-darwin-amd64
-
+gh release create --generate-notes $VERSION ../bin/govenv-darwin-arm64 ../bin/govenv-darwin-amd64
