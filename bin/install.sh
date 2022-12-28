@@ -16,8 +16,8 @@ $$\    $$\  $$$$$$\  $$$$$$$\ $$\    $$\       $$$$\  $$$$ | $$$$$$\  $$$$$$$\  
                                                                                           \$$$$$$  |
                                                                                            \______/
 '
-arch=`uname -m`
-os=`uname`
+arch=$(uname -m)
+os=$(uname)
 echo "Downloading venv command for: $os $arch"
 
 ok=0
@@ -42,6 +42,8 @@ elif [[ $appleSilicon = "n" ]]; then
     ok=1
 
 else
+    echo "no windows support"
+    exit 1
     curl -sLJo govenv \
         -H "Accept: application/octet-stream" \
         https://github.com/rrossmiller/venv-manager/releases/download/$VERSION/govenv-windows-amd64
