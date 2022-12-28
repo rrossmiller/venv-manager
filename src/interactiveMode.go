@@ -82,5 +82,5 @@ func InteractiveMode(args []string) {
 		fmt.Printf("Activating %s/%s\n", VENV_PATH, name)
 		cmd = fmt.Sprintf("source %s/%s/bin/activate", VENV_PATH, name)
 	}
-	WriteCmd(cmd)
+	WriteCmd(cmd, true)
 }

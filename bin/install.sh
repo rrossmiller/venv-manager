@@ -1,4 +1,6 @@
 #! /bin/zsh
+
+VERSION=0.1.1
 clear
 # credit where credit's due: https://patorjk.com/software/taag/#p=display&f=Big%20Money-nw&t=venv%20Manager
 echo '
@@ -30,19 +32,19 @@ fi
 if [[ $appleSilicon == "y" ]]; then
     curl -sLJo govenv \
         -H "Accept: application/octet-stream" \
-        https://github.com/rrossmiller/venv-manager/releases/download/0.1.0/govenv-darwin-arm64
+        https://github.com/rrossmiller/venv-manager/releases/download/$VERSION/govenv-darwin-arm64
     ok=1
 
 elif [[ $appleSilicon = "n" ]]; then
     curl -sLJo govenv \
         -H "Accept: application/octet-stream" \
-        https://github.com/rrossmiller/venv-manager/releases/download/0.1.0/govenv-darwin-amd64
+        https://github.com/rrossmiller/venv-manager/releases/download/$VERSION/govenv-darwin-amd64
     ok=1
 
 else
     curl -sLJo govenv \
         -H "Accept: application/octet-stream" \
-        https://github.com/rrossmiller/venv-manager/releases/download/0.1.0/govenv-windows-amd64
+        https://github.com/rrossmiller/venv-manager/releases/download/$VERSION/govenv-windows-amd64
     ok=1
 
 fi
@@ -54,11 +56,9 @@ if [[ ok -eq 1 ]]; then
     echo "add this to your .bashrc or .zshrc"
     echo '
 function venv(){
-    clear
     govenv $@
     if [[ $? -eq 0 ]]; then
         eval `tail -n 1 ~/.venv/history`
-        clear
     fi
 }'
 else

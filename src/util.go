@@ -17,12 +17,14 @@ func GetInput(prompt string) string {
 	return scanner.Text()
 }
 
-func WriteCmd(cmd string) {
+func WriteCmd(cmd string, clear bool) {
 	// append to history file
 	f, err := os.OpenFile(historyPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	Check(err)
 	defer f.Close()
-
+	if clear {
+		cmd = fmt.Sprintf("clear; %v && clear", cmd)
+	}
 	cmd = newLine + cmd
 	_, err = f.Write([]byte(cmd))
 	Check(err)
@@ -45,7 +47,7 @@ func Err(message string, code int) {
 }
 
 // limit history file size
-func Cleanup() {
+func Cleanup(clear bool) {
 	f, err := os.OpenFile(historyPath, os.O_RDONLY, 0644)
 	Check(err)
 	defer f.Close()
@@ -74,6 +76,6 @@ func Cleanup() {
 
 		err = os.Remove(historyPath)
 		Check(err)
-		WriteCmd(endStr)
+		WriteCmd(endStr, clear)
 	}
 }

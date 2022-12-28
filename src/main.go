@@ -69,12 +69,16 @@ func init() {
 func main() {
 	interactive := flag.Bool("i", false, "Interactive mode")
 	list := flag.Bool("l", false, "List venv's")
+	pth := flag.Bool("p", false, "Print the current python interpreter path")
 	// createFlag := flag.Bool("c", false, "Create a new venv")
 	// freezeAllFlag := flag.Bool("F", false, "Freeze the current state of all venvs")
 
 	flag.Parse()
 	args := flag.Args()
-	if *list {
+
+	clear := true
+	switch {
+	case *list:
 		venvs, err := os.ReadDir(VENV_PATH)
 		Check(err)
 
@@ -90,13 +94,19 @@ func main() {
 			}
 		}
 		os.Exit(-1)
-	} else if *interactive || len(args) == 0 {
+
+	case *pth:
+		clear = false
+		WriteCmd("which python3", clear)
+
+	case *interactive || len(args) == 0:
 		InteractiveMode(args)
-	} else if len(args) != 0 {
+
+	case len(args) != 0:
 		name := args[0]
 		cmd := fmt.Sprintf("source %s/%s/bin/activate", VENV_PATH, name)
 
-		WriteCmd(cmd)
+		WriteCmd(cmd, true)
 	}
-	Cleanup()
+	Cleanup(clear)
 }
