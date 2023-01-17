@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/rrossmiller/gocliselect"
 )
 
 func GetInput(prompt string) string {
@@ -38,6 +40,7 @@ func Check(e error) {
 
 func CheckChoice(choice string) {
 	if choice == "" {
+		gocliselect.ClearScreen() // todo replace with reset terminal state (as if you never used the venv script)
 		os.Exit(64)
 	}
 }
