@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
 	"github.com/rrossmiller/gocliselect"
 )
 
@@ -75,11 +76,11 @@ func InteractiveMode(args []string) {
 	case DELETE:
 		err := os.RemoveAll(fmt.Sprintf("%s/%s", VENV_PATH, name))
 		Check(err)
+		gocliselect.ClearScreen()
 		cmd = fmt.Sprintf("echo Deleting %s/%s", VENV_PATH, name)
-
 	case ACIVATE:
 		fmt.Printf("Activating %s/%s\n", VENV_PATH, name)
 		cmd = fmt.Sprintf("source %s/%s/bin/activate", VENV_PATH, name)
 	}
-	WriteCmd(cmd, true)
+	WriteCmd(cmd, false)
 }

@@ -10,3 +10,5 @@ VERSION=0.1.2
 echo "Update version in install.sh to $VERSION"
 echo
 gh release create --generate-notes $VERSION ../bin/govenv-darwin-arm64 ../bin/govenv-darwin-amd64
+
+# to delete: gh release delete $VERSION; git push --delete origin $VERSION
