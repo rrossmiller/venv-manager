@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-
 	"github.com/rrossmiller/gocliselect"
 )
 
@@ -23,8 +22,8 @@ func InteractiveMode(args []string) {
 	menu.AddItem("Create", CREATE)
 	menu.AddItem("Delete", DELETE)
 
+	// gocliselect.ClearScreen(len(menu.MenuItems) + 1)
 	choice := menu.Display()
-	gocliselect.ClearScreen(len(menu.MenuItems) + 1)
 	CheckChoice(choice)
 
 	var cmd string
@@ -53,7 +52,6 @@ func InteractiveMode(args []string) {
 		CheckChoice(name)
 
 	} else {
-		gocliselect.ClearScreen(len(menu.MenuItems) + 1)
 		name = GetInput("Name of venv: ")
 	}
 
@@ -71,6 +69,7 @@ func InteractiveMode(args []string) {
 		if act == "yes" {
 			cmd += fmt.Sprintf("; source %s/%s/bin/activate", VENV_PATH, name)
 		}
+		gocliselect.ClearScreen()
 		fmt.Printf("Creating %s\n", name)
 
 	case DELETE:

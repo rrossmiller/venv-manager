@@ -1,6 +1,6 @@
 #! /bin/zsh
 
-VERSION=0.1.1
+VERSION=0.1.2
 clear
 # credit where credit's due: https://patorjk.com/software/taag/#p=display&f=Big%20Money-nw&t=venv%20Manager
 echo '
@@ -16,6 +16,7 @@ $$\    $$\  $$$$$$\  $$$$$$$\ $$\    $$\       $$$$\  $$$$ | $$$$$$\  $$$$$$$\  
                                                                                           \$$$$$$  |
                                                                                            \______/
 '
+echo "Version: $VERSION"
 arch=$(uname -m)
 os=$(uname)
 echo "Downloading venv command for: $os $arch"
