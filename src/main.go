@@ -11,7 +11,6 @@ import (
 	"github.com/buger/goterm"
 )
 
-
 var (
 	home = os.Getenv("HOME")
 	user = os.Getenv("USER")

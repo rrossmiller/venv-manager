@@ -53,7 +53,6 @@ func Err(message string, code int) {
 func Cleanup(clear bool) {
 	f, err := os.OpenFile(historyPath, os.O_RDONLY, 0644)
 	Check(err)
-	defer f.Close()
 	info, _ := f.Stat()
 	// if the file is greater than 500b
 	if info.Size() > 500 {
@@ -76,6 +75,7 @@ func Cleanup(clear bool) {
 			idx++
 			endStr = strings.TrimSpace(endStrSpl[len(endStrSpl)-idx])
 		}
+		f.Close()
 
 		err = os.Remove(historyPath)
 		Check(err)
