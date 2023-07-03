@@ -17,7 +17,7 @@ pub struct CLI {
 enum Commands {
     /// List your projects
     #[command(short_flag('l'))]
-    List ,
+    List,
 
     /// Add an alias to a project
     #[command(short_flag('a'), arg_required_else_help(true))]
@@ -58,7 +58,7 @@ fn main() {
     // if there's a command run that
     if let Some(cmd) = cli.command {
         match cmd {
-            Commands::List  =>venv.list(),
+            Commands::List => venv.list(),
             Commands::Add { name, path } => {
                 eprintln!("add{:?}", venv.venv_store);
             }
@@ -83,5 +83,6 @@ fn main() {
     } else {
         //interactive mode
         println!("interactive");
+        interactive::start();
     }
 }
