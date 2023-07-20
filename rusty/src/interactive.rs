@@ -7,13 +7,13 @@ use crossterm::{
 };
 
 const ERR_STDOUT_WRITE: &str = "err writing to stdout";
-struct Menu {
-    prompt: String,
-    cursor_pos: usize,
-    menu_items: Vec<MenuItem>,
+pub struct Menu {
+    pub prompt: String,
+    pub cursor_pos: usize,
+    pub menu_items: Vec<MenuItem>,
 }
-struct MenuItem {
-    text: String,
+pub struct MenuItem {
+    pub text: String,
     //todo sub_menu
 }
 enum UserChoice {
@@ -21,30 +21,43 @@ enum UserChoice {
     Moved,
     Choice(usize),
 }
+
 impl Menu {
-    pub fn display(&mut self) -> &str {
+    /// Show the options, and get the user's choice and
+    pub fn display(&mut self) -> i32 {
+        execute!(
+            io::stdout(),
+            terminal::EnterAlternateScreen,
+            cursor::MoveTo(0, 0),
+            cursor::Hide
+        )
+        .unwrap();
+
         terminal::enable_raw_mode().unwrap();
 
         // initialize menu
         self.render_menu_items(false);
         // wait for the user to make a choice
+        let mut user_choice = -1;
         loop {
             if let Some(input) = self.get_input() {
                 match input {
                     UserChoice::Quit => break,
                     UserChoice::Choice(i) => {
-                        println!("choice idx: {}\nchoice: {}", i, self.menu_items[i].text);
-                        println!("TODO: do something with the choice");
+                        // user_choice = self.menu_items[i].text.clone();
+                        user_choice = i as i32;
                         break;
                     }
-                    UserChoice::Moved => {}
+                    UserChoice::Moved => {
+                        self.render_menu_items(true);
+                    }
                 }
-                self.render_menu_items(true);
             }
         }
 
+        execute!(io::stdout(), terminal::LeaveAlternateScreen, cursor::Show).unwrap();
         terminal::disable_raw_mode().expect("issue undoing raw mode");
-        ""
+        user_choice
     }
 
     fn render_menu_items(&self, redraw: bool) {
@@ -103,7 +116,7 @@ impl Menu {
                     return Some(UserChoice::Moved);
                 }
                 event::KeyCode::Enter => return Some(UserChoice::Choice(self.cursor_pos)),
-                _ => {}
+                _ => {} // do nothing if it's not one of the previous keys
             }
         } else {
             return Some(UserChoice::Quit);
@@ -112,32 +125,4 @@ impl Menu {
     }
 }
 
-pub fn start() {
-    let menu = vec![
-        MenuItem {
-            text: "Activate".to_string(),
-        },
-        MenuItem {
-            text: "Create".to_string(),
-        },
-        MenuItem {
-            text: "Delete".to_string(),
-        },
-    ];
 
-    execute!(
-        io::stdout(),
-        terminal::Clear(terminal::ClearType::All),
-        cursor::MoveTo(0, 0),
-        cursor::Hide
-    )
-    .unwrap();
-
-    let mut menu = Menu {
-        prompt: "This is a prompt:".to_string(),
-        cursor_pos: 0,
-        menu_items: menu,
-    };
-    menu.display();
-    execute!(io::stdout(), cursor::Show).unwrap();
-}
