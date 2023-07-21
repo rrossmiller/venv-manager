@@ -18,7 +18,6 @@ fi
 
 clear
 
-# x=`./$binName $@`
-# echo x: $x
 ./$binName $@
 rm $binName
+cat ~/.venv/history
