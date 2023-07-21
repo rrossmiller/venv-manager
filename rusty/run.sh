@@ -20,4 +20,3 @@ clear
 
 ./$binName $@
 rm $binName
-cat ~/.venv/history

@@ -14,7 +14,7 @@ pub struct Menu {
 }
 pub struct MenuItem {
     pub text: String,
-    //todo sub_menu
+    //todo callback? 
 }
 enum UserChoice {
     Quit,

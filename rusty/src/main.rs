@@ -41,7 +41,12 @@ enum Commands {
 }
 
 fn main() {
-    println!("JUST COPY WHAT THE GO VERSION DOES WITH FILE, EXCEPT DON'T RELY ON SOME SCRIPT IN .ZSHRC -- THE SCRIPT CAN BE IN /BIN AND call a the bin installed in some install dir (.venv probs)");
+    println!("");
+    println!("");
+    println!("do create or delete");
+    println!("");
+    println!(">");
+    // exit(1);
     // Get the program options
     let cli = CLI::parse();
 
@@ -82,17 +87,19 @@ fn main() {
         if opt.is_none() {
             exit(0);
         }
-        if let Some(env) = opt {
+        if let Some(cmd) = opt {
             let pth = venv_manager.venv_store.to_str().unwrap();
-            write_cmd(pth, env);
+            write_cmd(pth, cmd);
         }
     }
 
     println!("\n***RUNNING LAST LINE IN HIST FILE***");
+    let hist_path = format!("{}/history", venv_manager.venv_store.to_str().unwrap());
+    let c = fs::read_to_string(hist_path).unwrap();
+    println!("{}", c);
 }
 
-fn write_cmd(path: &str, env: String) {
+fn write_cmd(path: &str, cmd: String) {
     let hist_path = format!("{path}/history");
-    let cmd = format!("source {path}/{env}/bin/activate");
     fs::write(hist_path, cmd).expect(format!("Error writing to file {}", path).as_str());
 }
