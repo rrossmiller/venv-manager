@@ -69,10 +69,22 @@ fn main() {
                 venv_manager.list();
                 None
             }
-            Commands::Activate { name } => venv_manager.activate(),
-            Commands::Create { name } => venv_manager.create(),
+            Commands::Activate { name } => {
+                not_ready();
+                exit(3);
+                // venv_manager.activate();
+            }
+            Commands::Create { name } => {
+                not_ready();
+                exit(3);
+                // venv_manager.create();
+            }
 
-            Commands::Delete { name } => venv_manager.delete(),
+            Commands::Delete { name } => {
+                // venv_manager.delete();
+                not_ready();
+                exit(3);
+            }
             // e.g. `$ cli completions bash`
             Commands::Completions { shell } => {
                 shell.generate(&mut CLI::command(), &mut std::io::stdout());
@@ -91,7 +103,7 @@ fn main() {
         // interactive(&venv_manager);
         let opt = venv_manager.interactive();
         if opt.is_none() {
-            exit(0);
+            exit(3);
         }
         if let Some(cmd) = opt {
             let pth = venv_manager.venv_store.to_str().unwrap();
@@ -103,4 +115,10 @@ fn main() {
 fn write_cmd(path: &str, cmd: String) {
     let hist_path = format!("{path}/history");
     fs::write(hist_path, cmd).expect(format!("Error writing to file {}", path).as_str());
+}
+fn not_ready() {
+    eprintln!("this isn't ready yet. Sorry.");
+    eprintln!();
+    eprintln!("run venv in interactive mode --> `venv`");
+    eprintln!("run venv in fast mode --> `venv <name>`");
 }
