@@ -13,7 +13,8 @@ Copy the function that it prints out into your ~/.zhsrc or bashrc
 
 ```
 function venv(){
-    govenv $@
+    #govenv $@
+    venv_manager $@
     if [[ $? -eq 0 ]]; then
         eval `tail -n 1 ~/.venv/history`
     fi
