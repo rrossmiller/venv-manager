@@ -1,7 +1,6 @@
 use clap::{CommandFactory, Parser, Subcommand};
 use std::{fs, process::exit};
 use venv::VenvManager;
-mod interactive;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -54,30 +53,35 @@ fn main() {
     }
 
     // if there's no command, but an arg, try activating the env
-    if let Some(env) = cli.activate {
+    if let Some(name) = cli.activate {
         let path = venv_manager.venv_store.to_str().unwrap();
-        write_cmd(path, env);
+        let cmd = format!(
+            "source {}/{}/bin/activate",
+            venv_manager.venv_store.to_str().unwrap(),
+            name
+        );
+        write_cmd(path, cmd);
     }
     // if there's a command run that
     else if let Some(cmd) = cli.command {
-        match cmd {
-            Commands::List => venv_manager.list(),
-            Commands::Activate { name } => {
-                eprintln!("add {}", name);
-                venv_manager.activate();
+        let x = match cmd {
+            Commands::List => {
+                venv_manager.list();
+                None
             }
-            Commands::Create { name } => {
-                eprintln!("create {}", name);
-                venv_manager.create();
-            }
+            Commands::Activate { name } => venv_manager.activate(),
+            Commands::Create { name } => venv_manager.create(),
 
-            Commands::Delete { name } => {
-                eprintln!("del{:?}", venv_manager.venv_store);
-            }
+            Commands::Delete { name } => venv_manager.delete(),
             // e.g. `$ cli completions bash`
             Commands::Completions { shell } => {
                 shell.generate(&mut CLI::command(), &mut std::io::stdout());
+                None
             }
+        };
+        if let Some(cmd) = x {
+            let pth = venv_manager.venv_store.to_str().unwrap();
+            write_cmd(pth, cmd);
         }
         exit(0);
     }
@@ -94,11 +98,6 @@ fn main() {
             write_cmd(pth, cmd);
         }
     }
-
-    println!("\n***RUNNING LAST LINE IN HIST FILE***");
-    let hist_path = format!("{}/history", venv_manager.venv_store.to_str().unwrap());
-    let c = fs::read_to_string(hist_path).unwrap();
-    println!("{}", c);
 }
 
 fn write_cmd(path: &str, cmd: String) {

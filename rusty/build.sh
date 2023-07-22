@@ -1,20 +1,21 @@
 #!/bin/zsh
 binName='venv'
-rm $binName
+outName="${binName}_manager"
+rm $outName
 
 if [[ $1 == 'r' ]]; then
 	echo "building release"
 	cargo build --release &&
-		mv target/release/$binName .
+		mv target/release/$binName $outName
 	exit 0
 elif [[ $1 == 'd' ]]; then
 	echo "deploy release"
 	cargo build --release &&
-		mv target/release/$binName .
+		mv target/release/$binName $outName
 else
 	cargo build &&
-		mv target/debug/$binName .
+		mv target/debug/$binName $outName
 	exit 0
 fi
 
-sudo mv $binName /usr/local/bin
+mv $outName /usr/local/bin

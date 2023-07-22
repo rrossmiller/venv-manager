@@ -113,13 +113,19 @@ impl VenvManager {
         .unwrap();
 
         // get name from user
-        print!("Name of venv: ");
+        eprint!("Name of venv: ");
         io::stdout().flush().unwrap();
         let mut name = String::new();
         io::stdin()
             .read_line(&mut name)
             .expect("Failed to read line");
+
         name = name.replace("\n", "");
+        if name.is_empty() {
+            execute!(io::stdout(), terminal::LeaveAlternateScreen).unwrap();
+            eprintln!("venv name can't be blank");
+            return None;
+        }
 
         // ask if the user wants to activate it now
         let menu = vec![
@@ -206,11 +212,11 @@ impl VenvManager {
 
     pub fn list(&self) {
         let a = "Available venvs:";
-        println!("{}", a.blue());
+        eprintln!("{}", a.blue());
         let d = fs::read_dir(&self.venv_store).unwrap();
         for f in d {
             let fmt = format!("{}", f.unwrap().file_name().to_str().unwrap());
-            println!("  {}", fmt.yellow());
+            eprintln!("  {}", fmt.yellow());
         }
     }
 }
