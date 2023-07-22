@@ -21,12 +21,14 @@ enum Commands {
 
     /// Add an alias to a project
     #[command(short_flag('a'), arg_required_else_help(true))]
-    Add {
+    Activate {
         #[arg(value_name = "NAME{:?}")]
         name: String,
-        #[arg(value_name = "PATH{:?}")]
-        path: String,
     },
+
+    /// Deletes an alias
+    #[command(short_flag('c'), arg_required_else_help(true))]
+    Create { name: String },
 
     /// Deletes an alias
     #[command(short_flag('d'), arg_required_else_help(true))]
@@ -41,12 +43,6 @@ enum Commands {
 }
 
 fn main() {
-    println!("");
-    println!("");
-    println!("do create or delete");
-    println!("");
-    println!(">");
-    // exit(1);
     // Get the program options
     let cli = CLI::parse();
 
@@ -66,8 +62,13 @@ fn main() {
     else if let Some(cmd) = cli.command {
         match cmd {
             Commands::List => venv_manager.list(),
-            Commands::Add { name, path } => {
-                eprintln!("add{:?}", venv_manager.venv_store);
+            Commands::Activate { name } => {
+                eprintln!("add {}", name);
+                venv_manager.activate();
+            }
+            Commands::Create { name } => {
+                eprintln!("create {}", name);
+                venv_manager.create();
             }
 
             Commands::Delete { name } => {
@@ -78,6 +79,7 @@ fn main() {
                 shell.generate(&mut CLI::command(), &mut std::io::stdout());
             }
         }
+        exit(0);
     }
     // default to interactive mode
     else {

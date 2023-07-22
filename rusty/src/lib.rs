@@ -55,6 +55,9 @@ impl VenvManager {
         };
 
         let choice = menu.display();
+        if choice as usize > menu.menu_items.len() {
+            return None;
+        }
 
         let cmd = match choice {
             0 => self.activate(),
@@ -86,6 +89,9 @@ impl VenvManager {
 
         // ask the user to select the venv from the menu
         let choice = menu.display();
+        if choice as usize > menu.menu_items.len() {
+            return None;
+        }
 
         // return the env to activate
         let cmd = format!(
@@ -154,13 +160,48 @@ impl VenvManager {
     }
 
     pub fn delete(&self) -> Option<String> {
-        println!("delete func");
-        todo!(); //TODO:
+        // enter alt screen
+        execute!(
+            io::stdout(),
+            terminal::EnterAlternateScreen,
+            cursor::MoveTo(0, 0),
+        )
+        .unwrap();
 
-        // get name from user
+        // put the available venv's in a menu
+        let mut menu = Vec::new();
+        let envs = fs::read_dir(&self.venv_store).unwrap();
+        for f in envs {
+            let name = f.unwrap().file_name().to_str().unwrap().to_string();
+            menu.push(interactive::MenuItem { text: name })
+        }
 
+        // make a new menu
+        let mut menu = interactive::Menu {
+            prompt: "Choose a venv".to_string(),
+            cursor_pos: 0,
+            menu_items: menu,
+        };
+
+        // ask the user to select the venv from the menu
+        let choice = menu.display();
+        if choice as usize > menu.menu_items.len() {
+            return None;
+        }
+
+        // return the env to activate
+        let cmd = format!(
+            "rm -rf {}/{}",
+            self.venv_store.to_str().unwrap(),
+            menu.menu_items[choice as usize].text.clone()
+        );
+
+        execute!(io::stdout(), terminal::LeaveAlternateScreen).unwrap();
         // create the command to delete the folder holding the venv
-        Some("".to_string())
+        Some(cmd)
+    }
+    fn get_venv_vec() {
+        todo!();
     }
 
     pub fn list(&self) {
