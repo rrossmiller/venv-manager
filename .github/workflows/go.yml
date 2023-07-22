@@ -22,7 +22,7 @@ jobs:
         go-version: 1.19
 
     - name: Build
-      run: cd src; go build -v ./...
+      run: cd go_src; go build -v ./...
 
     - name: Build Scripts
-      run: cd scripts; ./build-bins.sh
+      run: cd go_src/scripts; ./build-bins.sh
