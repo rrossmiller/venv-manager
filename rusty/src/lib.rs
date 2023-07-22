@@ -89,7 +89,6 @@ impl VenvManager {
 
         // ask the user to select the venv from the menu
         let choice = menu.display();
-        println!("{}", choice);
         if choice as usize > menu.menu_items.len() {
             return None;
         }
