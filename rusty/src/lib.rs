@@ -1,4 +1,5 @@
 use home;
+use interactive::MenuItem;
 use std::{
     fs,
     io::{self, Write},
@@ -72,12 +73,10 @@ impl VenvManager {
     /// display another menu allowing the user to choose from availabel venv's
     /// in the venv dir
     pub fn activate(&self) -> Option<String> {
-        // put the available venv's in a menu
-        let mut menu = Vec::new();
-        let envs = fs::read_dir(&self.venv_store).unwrap();
-        for f in envs {
-            let name = f.unwrap().file_name().to_str().unwrap().to_string();
-            menu.push(interactive::MenuItem { text: name })
+        let menu = self.get_venv_vec();
+        if menu.len() == 0 {
+            eprintln!("No venvs found");
+            return None;
         }
 
         // make a new menu
@@ -146,6 +145,7 @@ impl VenvManager {
         let choice = menu.display();
 
         let rtn = match choice {
+            // yes, activate
             0 => Some(format!(
                 " python3 -m venv {}/{} && source {}/{}/bin/activate",
                 self.venv_store.to_str().unwrap(),
@@ -153,6 +153,7 @@ impl VenvManager {
                 self.venv_store.to_str().unwrap(),
                 name
             )),
+            // just create
             1 => Some(format!(
                 "python3 -m venv {}/{}",
                 self.venv_store.to_str().unwrap(),
@@ -174,14 +175,11 @@ impl VenvManager {
         )
         .unwrap();
 
-        // put the available venv's in a menu
-        let mut menu = Vec::new();
-        let envs = fs::read_dir(&self.venv_store).unwrap();
-        for f in envs {
-            let name = f.unwrap().file_name().to_str().unwrap().to_string();
-            menu.push(interactive::MenuItem { text: name })
+        let menu = self.get_venv_vec();
+        if menu.len() == 0 {
+            eprintln!("No venvs found");
+            return None;
         }
-
         // make a new menu
         let mut menu = interactive::Menu {
             prompt: "Choose a venv".to_string(),
@@ -206,8 +204,20 @@ impl VenvManager {
         // create the command to delete the folder holding the venv
         Some(cmd)
     }
-    fn get_venv_vec() {
-        todo!();
+
+    fn get_venv_vec(&self) -> Vec<MenuItem> {
+        // put the available venv's in a menu
+        let mut menu = Vec::new();
+        let envs = fs::read_dir(&self.venv_store).unwrap();
+        for f in envs {
+            let name = f.unwrap().file_name();
+            let name = name.to_str().unwrap().to_string();
+            if name == ".history" {
+                continue;
+            }
+            menu.push(interactive::MenuItem { text: name })
+        }
+        menu
     }
 
     pub fn list(&self) {
@@ -215,7 +225,12 @@ impl VenvManager {
         eprintln!("{}", a.blue());
         let d = fs::read_dir(&self.venv_store).unwrap();
         for f in d {
-            let fmt = format!("{}", f.unwrap().file_name().to_str().unwrap());
+            let f_name = f.unwrap().file_name();
+            let f_name = f_name.to_str().unwrap();
+            if f_name == ".history" {
+                continue;
+            }
+            let fmt = format!("{}", f_name);
             eprintln!("  {}", fmt.yellow());
         }
     }

@@ -94,6 +94,8 @@ fn main() {
         if let Some(cmd) = x {
             let pth = venv_manager.venv_store.to_str().unwrap();
             write_cmd(pth, cmd);
+        } else {
+            exit(3);
         }
         exit(0);
     }
@@ -113,7 +115,7 @@ fn main() {
 }
 
 fn write_cmd(path: &str, cmd: String) {
-    let hist_path = format!("{path}/history");
+    let hist_path = format!("{path}/.history");
     fs::write(hist_path, cmd).expect(format!("Error writing to file {}", path).as_str());
 }
 fn not_ready() {
