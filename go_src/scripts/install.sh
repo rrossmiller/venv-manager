@@ -63,7 +63,8 @@ function venv(){
     if [[ $? -eq 0 ]]; then
         eval `tail -n 1 ~/.venv/history`
     fi
-}'
+}
+'
 else
     echo "something went wrong"
     echo "ok=$ok, appleSilicon=$appleSilicon"

@@ -1,5 +1,5 @@
 clear
-cd ../src
+cd ../
 echo AMD64
 GOOS=darwin	GOARCH=amd64 go build -o ../scripts/govenv-darwin-amd64
 
