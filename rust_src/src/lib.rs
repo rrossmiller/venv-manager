@@ -61,9 +61,9 @@ impl VenvManager {
         }
 
         let cmd = match choice {
-            0 => self.activate(),
-            1 => self.create(),
-            2 => self.delete(),
+            0 => self.activate_interactive(),
+            1 => self.create_interactive(),
+            2 => self.delete_interactive(),
             _ => None,
         };
 
@@ -72,7 +72,18 @@ impl VenvManager {
 
     /// display another menu allowing the user to choose from availabel venv's
     /// in the venv dir
-    pub fn activate(&self) -> Option<String> {
+    pub fn activate(&self, name: String) -> Option<String> {
+        // return the env to activate
+        let cmd = format!(
+            "source {}/{}/bin/activate",
+            self.venv_store.to_str().unwrap(),
+            name
+        );
+        return Some(cmd);
+    }
+    /// display another menu allowing the user to choose from availabel venv's
+    /// in the venv dir
+    pub fn activate_interactive(&self) -> Option<String> {
         let menu = self.get_venv_vec();
         if menu.len() == 0 {
             eprintln!("No venvs found");
@@ -93,16 +104,23 @@ impl VenvManager {
         }
 
         // return the env to activate
-        let cmd = format!(
-            "source {}/{}/bin/activate",
-            self.venv_store.to_str().unwrap(),
-            menu.menu_items[choice as usize].text.clone()
-        );
-        return Some(cmd);
+        return self.activate(menu.menu_items[choice as usize].text.clone());
     }
 
     /// Create a new venv from the user's input name
-    pub fn create(&self) -> Option<String> {
+    pub fn create(&self, name: String) -> Option<String> {
+        let rtn = Some(format!(
+            "python3 -m venv {}/{}",
+            self.venv_store.to_str().unwrap(),
+            name
+        ));
+
+        eprintln!("Creating venv '{name}'");
+
+        rtn
+    }
+    /// Create a new venv from the user's input name
+    pub fn create_interactive(&self) -> Option<String> {
         // enter alt screen
         execute!(
             io::stdout(),
@@ -147,18 +165,14 @@ impl VenvManager {
         let rtn = match choice {
             // yes, activate
             0 => Some(format!(
-                " python3 -m venv {}/{} && source {}/{}/bin/activate",
+                "python3 -m venv {}/{} && source {}/{}/bin/activate",
                 self.venv_store.to_str().unwrap(),
                 name,
                 self.venv_store.to_str().unwrap(),
                 name
             )),
             // just create
-            1 => Some(format!(
-                "python3 -m venv {}/{}",
-                self.venv_store.to_str().unwrap(),
-                name
-            )),
+            1 => self.create(name),
             _ => None,
         };
 
@@ -166,7 +180,7 @@ impl VenvManager {
         rtn
     }
 
-    pub fn delete(&self) -> Option<String> {
+    pub fn delete(&self, name: String) -> Option<String> {
         // enter alt screen
         execute!(
             io::stdout(),
@@ -175,14 +189,18 @@ impl VenvManager {
         )
         .unwrap();
 
-        let menu = self.get_venv_vec();
-        if menu.len() == 0 {
-            eprintln!("No venvs found");
-            return None;
-        }
+        let menu = vec![
+            interactive::MenuItem {
+                text: "Yes".to_string(),
+            },
+            interactive::MenuItem {
+                text: "No".to_string(),
+            },
+        ];
+
         // make a new menu
         let mut menu = interactive::Menu {
-            prompt: "Choose a venv".to_string(),
+            prompt: format!("Are you sure you want to delete '{name}'?"),
             cursor_pos: 0,
             menu_items: menu,
         };
@@ -197,12 +215,47 @@ impl VenvManager {
         let cmd = format!(
             "rm -rf {}/{}",
             self.venv_store.to_str().unwrap(),
-            menu.menu_items[choice as usize].text.clone()
+            name
         );
+
+        // create the command to delete the folder holding the venv
+        Some(cmd)
+    }
+
+    pub fn delete_interactive(&self) -> Option<String> {
+        // enter alt screen
+        execute!(
+            io::stdout(),
+            terminal::EnterAlternateScreen,
+            cursor::MoveTo(0, 0),
+        )
+        .unwrap();
+
+        let menu = self.get_venv_vec();
+        if menu.len() == 0 {
+            eprintln!("No venvs found");
+            return None;
+        }
+
+        // make a new menu
+        let mut menu = interactive::Menu {
+            prompt: "Choose a venv".to_string(),
+            cursor_pos: 0,
+            menu_items: menu,
+        };
+
+        // ask the user to select the venv from the menu
+        let choice = menu.display();
+        if choice as usize > menu.menu_items.len() {
+            return None;
+        }
+
+        // return the env to delete
+        let cmd = self.delete(menu.menu_items[choice as usize].text.clone());
 
         execute!(io::stdout(), terminal::LeaveAlternateScreen).unwrap();
         // create the command to delete the folder holding the venv
-        Some(cmd)
+        cmd
     }
 
     fn get_venv_vec(&self) -> Vec<MenuItem> {

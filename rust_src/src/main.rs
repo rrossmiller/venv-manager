@@ -25,11 +25,11 @@ enum Commands {
         name: String,
     },
 
-    /// Deletes an alias
+    /// Creates a new venv
     #[command(short_flag('c'), arg_required_else_help(true))]
     Create { name: String },
 
-    /// Deletes an alias
+    /// Deletes a venv
     #[command(short_flag('d'), arg_required_else_help(true))]
     Delete { name: String },
 
@@ -70,20 +70,15 @@ fn main() {
                 None
             }
             Commands::Activate { name } => {
-                not_ready();
-                exit(3);
-                // venv_manager.activate();
+                venv_manager.activate(name)
+                
             }
             Commands::Create { name } => {
-                not_ready();
-                exit(3);
-                // venv_manager.create();
+                venv_manager.create(name)
             }
 
             Commands::Delete { name } => {
-                // venv_manager.delete();
-                not_ready();
-                exit(3);
+                venv_manager.delete(name)
             }
             // e.g. `$ cli completions bash`
             Commands::Completions { shell } => {
@@ -117,10 +112,4 @@ fn main() {
 fn write_cmd(path: &str, cmd: String) {
     let hist_path = format!("{path}/.history");
     fs::write(hist_path, cmd).expect(format!("Error writing to file {}", path).as_str());
-}
-fn not_ready() {
-    eprintln!("this isn't ready yet. Sorry.");
-    eprintln!();
-    eprintln!("run venv in interactive mode --> `venv`");
-    eprintln!("run venv in fast mode --> `venv <name>`");
 }
