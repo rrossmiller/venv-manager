@@ -105,8 +105,8 @@ impl Menu {
                 event::KeyCode::Up | event::KeyCode::Char('k') => {
                     if self.cursor_pos > 0 {
                         self.cursor_pos -= 1;
-                    }else{
-                        self.cursor_pos = self.menu_items.len()-1;
+                    } else {
+                        self.cursor_pos = self.menu_items.len() - 1;
                     }
                     return Some(UserChoice::Moved);
                 }
@@ -114,7 +114,7 @@ impl Menu {
                 event::KeyCode::Down | event::KeyCode::Char('j') => {
                     if self.cursor_pos < self.menu_items.len() - 1 {
                         self.cursor_pos += 1;
-                    }else{
+                    } else {
                         self.cursor_pos = 0;
                     }
                     return Some(UserChoice::Moved);
