@@ -270,6 +270,9 @@ impl VenvManager {
             }
             menu.push(interactive::MenuItem { text: name })
         }
+
+        // alphabetical order
+        menu.sort_by_key(|i| i.text.clone());
         menu
     }
 
