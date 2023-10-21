@@ -15,7 +15,7 @@ Copy the function into ~/.zhsrc or ~/.bashrc
 
 ```
 function venv() {
-	venv_manager $@
+	source ~/.venv/venv_manager $@
 	if [[ $? -eq 0 ]]; then
 		eval $(tail -n 1 ~/.venv/.history)
 	fi

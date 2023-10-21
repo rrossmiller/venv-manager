@@ -212,11 +212,7 @@ impl VenvManager {
         }
 
         // return the env to activate
-        let cmd = format!(
-            "rm -rf {}/{}",
-            self.venv_store.to_str().unwrap(),
-            name
-        );
+        let cmd = format!("rm -rf {}/{}", self.venv_store.to_str().unwrap(), name);
 
         // create the command to delete the folder holding the venv
         Some(cmd)
@@ -265,10 +261,9 @@ impl VenvManager {
         for f in envs {
             let name = f.unwrap().file_name();
             let name = name.to_str().unwrap().to_string();
-            if name == ".history" {
-                continue;
+            if name != ".history" && name != "bin" {
+                menu.push(interactive::MenuItem { text: name })
             }
-            menu.push(interactive::MenuItem { text: name })
         }
 
         // alphabetical order
@@ -279,14 +274,9 @@ impl VenvManager {
     pub fn list(&self) {
         let a = "Available venvs:";
         eprintln!("{}", a.blue());
-        let d = fs::read_dir(&self.venv_store).unwrap();
-        for f in d {
-            let f_name = f.unwrap().file_name();
-            let f_name = f_name.to_str().unwrap();
-            if f_name == ".history" {
-                continue;
-            }
-            let fmt = format!("{}", f_name);
+        let d = self.get_venv_vec();
+        for v in d.iter() {
+            let fmt = format!("{}", v.text);
             eprintln!("  {}", fmt.yellow());
         }
     }
