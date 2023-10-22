@@ -16,7 +16,7 @@ elif [[ $1 == 'd' ]]; then
         mkdir -p ~/.venv/bin
     fi
     cargo build --release &&
-    mv target/debug/$binName ~/.venv/bin/$outName 
+    mv target/release/$binName ~/.venv/bin/$outName 
 
 # build and move to current dir
 else

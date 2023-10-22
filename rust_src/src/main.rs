@@ -69,17 +69,10 @@ fn main() {
                 venv_manager.list();
                 None
             }
-            Commands::Activate { name } => {
-                venv_manager.activate(name)
-                
-            }
-            Commands::Create { name } => {
-                venv_manager.create(name)
-            }
+            Commands::Activate { name } => venv_manager.activate(name),
+            Commands::Create { name } => venv_manager.create(name),
 
-            Commands::Delete { name } => {
-                venv_manager.delete(name)
-            }
+            Commands::Delete { name } => venv_manager.delete(name),
             // e.g. `$ cli completions bash`
             Commands::Completions { shell } => {
                 shell.generate(&mut CLI::command(), &mut std::io::stdout());
