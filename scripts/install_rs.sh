@@ -65,7 +65,6 @@ if [[ ok -eq 1 ]]; then
     echo '
 function venv() {
     ~/.venv/bin/venv_manager $@
-    echo ok
     if [[ $? -eq 0 ]]; then
         eval $( tail -n 1 ~/.venv/.history )
     fi
