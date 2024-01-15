@@ -55,11 +55,7 @@ fn main() {
     // if there's no command, but an arg, try activating the env
     if let Some(name) = cli.activate {
         let path = venv_manager.venv_store.to_str().unwrap();
-        let cmd = format!(
-            "source {}/{}/bin/activate",
-            venv_manager.venv_store.to_str().unwrap(),
-            name
-        );
+        let cmd = format!("source {path}/{name}/bin/activate");
         write_cmd(path, cmd);
     }
     // if there's a command run that
@@ -71,8 +67,8 @@ fn main() {
             }
             Commands::Activate { name } => venv_manager.activate(name),
             Commands::Create { name } => venv_manager.create(name),
-
             Commands::Delete { name } => venv_manager.delete(name),
+
             // e.g. `$ cli completions bash`
             Commands::Completions { shell } => {
                 shell.generate(&mut CLI::command(), &mut std::io::stdout());
@@ -90,7 +86,6 @@ fn main() {
     // default to interactive mode
     else {
         //interactive mode
-        // interactive(&venv_manager);
         let opt = venv_manager.interactive();
         if opt.is_none() {
             exit(3);
