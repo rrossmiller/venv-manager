@@ -49,12 +49,7 @@ impl VenvManager {
             },
         ];
 
-        let mut menu = interactive::Menu {
-            prompt: "Choose and option".to_string(),
-            cursor_pos: 0,
-            menu_items: menu,
-        };
-
+        let mut menu = interactive::Menu::new("Choose and option".to_string(), menu, false);
         let choice = menu.display();
         if choice as usize > menu.menu_items.len() {
             return None;
@@ -91,15 +86,11 @@ impl VenvManager {
         }
 
         // make a new menu
-        let mut menu = interactive::Menu {
-            prompt: "Choose and option".to_string(),
-            cursor_pos: 0,
-            menu_items: menu,
-        };
+        let mut menu = interactive::Menu::new("Choose a venv".to_string(), menu, true);
 
         // ask the user to select the venv from the menu
         let choice = menu.display();
-        if choice as usize > menu.menu_items.len() {
+        if choice  > menu.menu_items.len() {
             return None;
         }
 
@@ -154,11 +145,7 @@ impl VenvManager {
             },
         ];
 
-        let mut menu = interactive::Menu {
-            prompt: "Activate the new venv?".to_string(),
-            cursor_pos: 0,
-            menu_items: menu,
-        };
+        let mut menu = interactive::Menu::new("Activate the new venv?".to_string(), menu, false);
 
         let choice = menu.display();
 
@@ -199,11 +186,8 @@ impl VenvManager {
         ];
 
         // make a new menu
-        let mut menu = interactive::Menu {
-            prompt: format!("Are you sure you want to delete '{name}'?"),
-            cursor_pos: 0,
-            menu_items: menu,
-        };
+        let mut menu =
+            interactive::Menu::new("Are you sure you want to delete?".to_string(), menu, false);
 
         // ask the user to select the venv from the menu
         let choice = menu.display();
@@ -234,11 +218,13 @@ impl VenvManager {
         }
 
         // make a new menu
-        let mut menu = interactive::Menu {
-            prompt: "Choose a venv".to_string(),
-            cursor_pos: 0,
-            menu_items: menu,
-        };
+        let mut menu = interactive::Menu::new("Choose a venv".to_string(), menu, true);
+        //     {
+        //     prompt: "Choose a venv".to_string(),
+        //     cursor_pos: 0,
+        //     menu_items: menu,
+        //     searchable: true,
+        // };
 
         // ask the user to select the venv from the menu
         let choice = menu.display();
