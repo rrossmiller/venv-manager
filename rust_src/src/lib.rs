@@ -11,11 +11,15 @@ mod interactive;
 
 const VENV_STORE: &str = ".venv";
 // const VENV_STORE: &str = "VENV_TEMP";
+/// Encapsulating struct for the venv manager
 pub struct VenvManager {
+    /// The path to the venv store. This is where the virtual environments and `VenvManager`
+    /// management files are kept
     pub venv_store: path::PathBuf,
 }
 
 impl VenvManager {
+    /// Create a new `VenvManager`
     pub fn new() -> Result<VenvManager, ()> {
         let mut home_dir: path::PathBuf;
         if let Some(pth) = home::home_dir() {
@@ -35,7 +39,7 @@ impl VenvManager {
         });
     }
 
-    /// run in interactive mode
+    /// Run in interactive mode
     pub fn interactive(&self) -> Option<String> {
         let menu = vec![
             interactive::MenuItem {
@@ -65,8 +69,7 @@ impl VenvManager {
         return cmd;
     }
 
-    /// display another menu allowing the user to choose from availabel venv's
-    /// in the venv dir
+    /// Send the command to activate the venv with the same name as `name`
     pub fn activate(&self, name: String) -> Option<String> {
         // return the env to activate
         let cmd = format!(
@@ -76,8 +79,7 @@ impl VenvManager {
         );
         return Some(cmd);
     }
-    /// display another menu allowing the user to choose from availabel venv's
-    /// in the venv dir
+    /// Display a menu allowing the user to choose from available venv's in the venv dir
     pub fn activate_interactive(&self) -> Option<String> {
         let menu = self.get_venv_vec();
         if menu.len() == 0 {
@@ -90,7 +92,7 @@ impl VenvManager {
 
         // ask the user to select the venv from the menu
         let choice = menu.display();
-        if choice  > menu.menu_items.len() {
+        if choice > menu.menu_items.len() {
             return None;
         }
 
@@ -110,7 +112,8 @@ impl VenvManager {
 
         rtn
     }
-    /// Create a new venv from the user's input name
+    /// Create a new venv from the user's input name. The user will be asked for that new 
+    /// venv's name. The user can optionally activate the newly created venv.
     pub fn create_interactive(&self) -> Option<String> {
         // enter alt screen
         execute!(
@@ -167,6 +170,7 @@ impl VenvManager {
         rtn
     }
 
+    // Delete the venv directory
     pub fn delete(&self, name: String) -> Option<String> {
         // enter alt screen
         execute!(

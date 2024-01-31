@@ -21,6 +21,8 @@ pub struct MenuItem {
     //todo callback so that this can be extended beyond just using the string in some other
     //function. That function can be passed in here and called when the user selects this item
 }
+
+
 enum UserChoice {
     Quit,
     Moved,
