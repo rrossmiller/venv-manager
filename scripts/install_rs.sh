@@ -36,21 +36,24 @@ if [[ $appleSilicon == "y" ]]; then
         https://github.com/rrossmiller/venv-manager/releases/download/$VERSION/rs-venv-darwin-arm64
     ok=1
 
+# build from scratch
 elif [[ $appleSilicon = "n" ]]; then
-    echo "TODO..."
-    # curl -sLJo govenv \
-    #     -H "Accept: application/octet-stream" \
-    #     https://github.com/rrossmiller/venv-manager/releases/download/$VERSION/govenv-darwin-amd64
-    # ok=1
-
+    if type cargo &>/dev/null; then
+	pth=`pwd`
+	echo "building bin"
+	git clone https://github.com/rrossmiller/venv-manager/
+	cd venv-manager/src/
+	./build.sh d
+	cd $pth
+	rm -rf venv-manager
+    else
+	echo "Cargo must be installed to build"
+	echo "Directions: https://www.rust-lang.org/tools/install"
+    fi
+    exit 0 
 else
     echo "no windows support yet"
     exit 1
-    # curl -sLJo govenv \
-    #     -H "Accept: application/octet-stream" \
-    #     https://github.com/rrossmiller/venv-manager/releases/download/$VERSION/govenv-windows-amd64
-    # ok=1
-
 fi
 
 if [[ ok -eq 1 ]]; then
