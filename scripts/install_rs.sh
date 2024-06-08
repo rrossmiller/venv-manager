@@ -1,6 +1,6 @@
 #! /bin/zsh
 
-VERSION=0.3.0
+VERSION=0.4.0
 clear
 # credit where credit's due: https://patorjk.com/software/taag/#p=display&f=Big%20Money-nw&t=venv%20Manager
 echo '
