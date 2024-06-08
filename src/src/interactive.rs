@@ -22,7 +22,6 @@ pub struct MenuItem {
     //function. That function can be passed in here and called when the user selects this item
 }
 
-
 enum UserChoice {
     Quit,
     Moved,
@@ -44,7 +43,7 @@ impl Menu {
     }
 
     /// Show the options, and get the user's choice and
-    pub fn display(&mut self) -> usize {
+    pub fn display(&mut self) -> Option<usize> {
         execute!(
             io::stdout(),
             terminal::EnterAlternateScreen,
@@ -59,14 +58,14 @@ impl Menu {
         let mut out = io::stdout();
         self.render_menu_items(&mut out, false, false);
         // wait for the user to make a choice
-        let mut user_choice = 0;
+        let mut user_choice = None;
         loop {
             if let Some(input) = self.get_input() {
                 match input {
                     UserChoice::Quit => break,
                     UserChoice::Choice(i) => {
                         // user_choice = self.menu_items[i].text.clone();
-                        user_choice = i;
+                        user_choice = Some(i);
                         break;
                     }
                     UserChoice::Moved => {

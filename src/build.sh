@@ -9,7 +9,7 @@ if [[ $1 == 'r' ]]; then
     cargo build --release &&
     mv target/release/$binName $outName
 
-# build and move to current dir (then move to /usr/local/bin)
+# build and move to current dir (then move to bin dir)
 elif [[ $1 == 'd' ]]; then
     echo "deploy release"
     if [[ ! -d "~/.venv/bin" ]]; then

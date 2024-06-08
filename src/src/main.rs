@@ -34,6 +34,7 @@ enum Commands {
     Delete { name: String },
 
     /// Generate shell completions
+    #[clap(alias = "--generate-shell-completion", hide = true)]
     Completions {
         /// The shell to generate the completions for
         #[arg(value_enum)]
@@ -85,14 +86,13 @@ fn main() {
     }
     // default to interactive mode
     else {
-        //interactive mode
-        let opt = venv_manager.interactive();
-        if opt.is_none() {
-            exit(3);
-        }
-        if let Some(cmd) = opt {
+        // interactive mode
+        if let Some(cmd) = venv_manager.interactive() {
             let pth = venv_manager.venv_store.to_str().unwrap();
             write_cmd(pth, cmd);
+        } else {
+            // exit and don't run the command
+            exit(3);
         }
     }
 }

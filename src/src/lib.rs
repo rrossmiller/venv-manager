@@ -34,9 +34,10 @@ impl VenvManager {
             eprintln!("creating {}", home_dir.to_str().unwrap());
             fs::create_dir(home_dir.as_path()).expect("Error creating new .venv dir");
         }
-        return Ok(VenvManager {
+
+        Ok(VenvManager {
             venv_store: home_dir,
-        });
+        })
     }
 
     /// Run in interactive mode
@@ -54,8 +55,12 @@ impl VenvManager {
         ];
 
         let mut menu = interactive::Menu::new("Choose and option".to_string(), menu, false);
-        let choice = menu.display();
-        if choice as usize > menu.menu_items.len() {
+        let choice_opt = menu.display();
+        let choice: usize;
+        // testme
+        if let Some(i) = choice_opt {
+            choice = i;
+        } else {
             return None;
         }
 
@@ -66,7 +71,7 @@ impl VenvManager {
             _ => None,
         };
 
-        return cmd;
+        cmd
     }
 
     /// Send the command to activate the venv with the same name as `name`
@@ -77,7 +82,7 @@ impl VenvManager {
             self.venv_store.to_str().unwrap(),
             name
         );
-        return Some(cmd);
+        Some(cmd)
     }
     /// Display a menu allowing the user to choose from available venv's in the venv dir
     pub fn activate_interactive(&self) -> Option<String> {
@@ -91,13 +96,15 @@ impl VenvManager {
         let mut menu = interactive::Menu::new("Choose a venv".to_string(), menu, true);
 
         // ask the user to select the venv from the menu
-        let choice = menu.display();
-        if choice > menu.menu_items.len() {
+        if let Some(choice) = menu.display() {
+            if choice > menu.menu_items.len() {
+                return None;
+            }
+            // return the env to activate
+            return self.activate(menu.menu_items[choice as usize].text.clone());
+        } else {
             return None;
         }
-
-        // return the env to activate
-        return self.activate(menu.menu_items[choice as usize].text.clone());
     }
 
     /// Create a new venv from the user's input name
@@ -112,7 +119,7 @@ impl VenvManager {
 
         rtn
     }
-    /// Create a new venv from the user's input name. The user will be asked for that new 
+    /// Create a new venv from the user's input name. The user will be asked for that new
     /// venv's name. The user can optionally activate the newly created venv.
     pub fn create_interactive(&self) -> Option<String> {
         // enter alt screen
@@ -150,24 +157,24 @@ impl VenvManager {
 
         let mut menu = interactive::Menu::new("Activate the new venv?".to_string(), menu, false);
 
-        let choice = menu.display();
-
-        let rtn = match choice {
-            // yes, activate
-            0 => Some(format!(
-                "python3 -m venv {}/{} && source {}/{}/bin/activate",
-                self.venv_store.to_str().unwrap(),
-                name,
-                self.venv_store.to_str().unwrap(),
-                name
-            )),
-            // just create
-            1 => self.create(name),
-            _ => None,
-        };
-
-        execute!(io::stdout(), terminal::LeaveAlternateScreen).unwrap();
-        rtn
+        if let Some(choice) = menu.display() {
+            let rtn = match choice {
+                // yes, activate
+                0 => Some(format!(
+                    "python3 -m venv {}/{} && source {}/{}/bin/activate",
+                    self.venv_store.to_str().unwrap(),
+                    name,
+                    self.venv_store.to_str().unwrap(),
+                    name
+                )),
+                // just create
+                1 => self.create(name),
+                _ => None,
+            };
+            execute!(io::stdout(), terminal::LeaveAlternateScreen).unwrap();
+            return rtn;
+        }
+        None
     }
 
     // Delete the venv directory
@@ -194,16 +201,18 @@ impl VenvManager {
             interactive::Menu::new("Are you sure you want to delete?".to_string(), menu, false);
 
         // ask the user to select the venv from the menu
-        let choice = menu.display();
-        if choice as usize > menu.menu_items.len() {
-            return None;
+        if let Some(choice) = menu.display() {
+            if choice as usize > menu.menu_items.len() {
+                return None;
+            }
+
+            // return the env to activate
+            let cmd = format!("rm -rf {}/{}", self.venv_store.to_str().unwrap(), name);
+
+            // create the command to delete the folder holding the venv
+            return Some(cmd);
         }
-
-        // return the env to activate
-        let cmd = format!("rm -rf {}/{}", self.venv_store.to_str().unwrap(), name);
-
-        // create the command to delete the folder holding the venv
-        Some(cmd)
+        None
     }
 
     pub fn delete_interactive(&self) -> Option<String> {
@@ -231,17 +240,19 @@ impl VenvManager {
         // };
 
         // ask the user to select the venv from the menu
-        let choice = menu.display();
-        if choice as usize > menu.menu_items.len() {
-            return None;
+        if let Some(choice) = menu.display() {
+            if choice as usize > menu.menu_items.len() {
+                return None;
+            }
+
+            // return the env to delete
+            let cmd = self.delete(menu.menu_items[choice as usize].text.clone());
+
+            execute!(io::stdout(), terminal::LeaveAlternateScreen).unwrap();
+            // create the command to delete the folder holding the venv
+            return cmd;
         }
-
-        // return the env to delete
-        let cmd = self.delete(menu.menu_items[choice as usize].text.clone());
-
-        execute!(io::stdout(), terminal::LeaveAlternateScreen).unwrap();
-        // create the command to delete the folder holding the venv
-        cmd
+        None
     }
 
     fn get_venv_vec(&self) -> Vec<MenuItem> {
