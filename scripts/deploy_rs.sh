@@ -1,8 +1,8 @@
-VERSION=0.3.0
+VERSION=0.4.0
 if [[ $1 == 'r' ]]; then
     clear
     bin="rs-venv-darwin-arm64"
-    cd ../rust_src
+    cd ../src
     rm $bin
 
     echo "AMD64"
