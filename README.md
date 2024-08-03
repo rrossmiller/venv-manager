@@ -24,10 +24,3 @@ function venv() {
 source ~/.zshrc #(or ~/.bashrc)
 venv
 ```
-
-Go version (deprecated):
-
-```
-curl -s https://raw.githubusercontent.com/rrossmiller/venv-manager/main/scripts/install_go.sh | /bin/zsh
-
-```
