@@ -1,8 +1,8 @@
-VERSION=0.4.0
+VERSION=0.5.0
 if [[ $1 == 'r' ]]; then
     clear
     bin="rs-venv-darwin-arm64"
-    cd ../src
+    cd ../
     rm $bin
 
     echo "AMD64"

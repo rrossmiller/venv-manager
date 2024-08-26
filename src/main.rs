@@ -27,7 +27,10 @@ enum Commands {
 
     /// Creates a new venv
     #[command(short_flag('c'), arg_required_else_help(true))]
-    Create { name: String },
+    Create {
+        name: String,
+        version: Option<String>,
+    },
 
     /// Deletes a venv
     #[command(short_flag('d'), arg_required_else_help(true))]
@@ -57,6 +60,7 @@ fn main() {
     if let Some(name) = cli.activate {
         let path = venv_manager.venv_store.to_str().unwrap();
         let cmd = format!("source {path}/{name}/bin/activate");
+        println!("{}",cmd);
         write_cmd(path, cmd);
     }
     // if there's a command run that
@@ -67,7 +71,7 @@ fn main() {
                 None
             }
             Commands::Activate { name } => venv_manager.activate(name),
-            Commands::Create { name } => venv_manager.create(name),
+            Commands::Create { name, version } => venv_manager.create(name, version),
             Commands::Delete { name } => venv_manager.delete(name),
 
             // e.g. `$ cli completions bash`

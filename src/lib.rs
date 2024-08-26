@@ -3,7 +3,7 @@ use interactive::MenuItem;
 use std::{
     fs,
     io::{self, Write},
-    path,
+    path, process,
 };
 
 use crossterm::{cursor, execute, style::Stylize, terminal};
@@ -17,6 +17,9 @@ pub struct VenvManager {
     /// management files are kept
     pub venv_store: path::PathBuf,
 }
+
+#[derive(Debug)]
+struct PyVersion(String, String);
 
 impl VenvManager {
     /// Create a new `VenvManager`
@@ -108,9 +111,15 @@ impl VenvManager {
     }
 
     /// Create a new venv from the user's input name
-    pub fn create(&self, name: String) -> Option<String> {
+    pub fn create(&self, name: String, version: Option<String>) -> Option<String> {
+        let py_version = if let Some(v) = version {
+            format!("python{}", v)
+        } else {
+            "python3".to_string()
+        };
         let rtn = Some(format!(
-            "python3 -m venv {}/{}",
+            "{} -m venv {}/{}",
+            py_version,
             self.venv_store.to_str().unwrap(),
             name
         ));
@@ -144,11 +153,21 @@ impl VenvManager {
             eprintln!("venv name can't be blank");
             return None;
         }
+        // ask the user what version of python to use
+        let versions = self.get_py_versions();
+        let menu = versions
+            .iter()
+            .map(|v| interactive::MenuItem { text: v.0.clone() })
+            .collect();
+        let mut menu = interactive::Menu::new("Activate the new venv?".to_string(), menu, false);
+        let idx = menu.display().unwrap();
+        let py_ver = &versions[idx];
 
         // ask if the user wants to activate it now
         let menu = vec![
             interactive::MenuItem {
-                text: "Yes, activate".to_string(),
+                // text: "Yes, activate".to_string(),
+                text: format!("Yes, activate {} ({})", name, py_ver.0),
             },
             interactive::MenuItem {
                 text: "No".to_string(),
@@ -161,14 +180,15 @@ impl VenvManager {
             let rtn = match choice {
                 // yes, activate
                 0 => Some(format!(
-                    "python3 -m venv {}/{} && source {}/{}/bin/activate",
+                    "{} -m venv {}/{} && source {}/{}/bin/activate",
+                    py_ver.1,
                     self.venv_store.to_str().unwrap(),
                     name,
                     self.venv_store.to_str().unwrap(),
                     name
                 )),
                 // just create
-                1 => self.create(name),
+                1 => self.create(name, None),
                 _ => None,
             };
             execute!(io::stdout(), terminal::LeaveAlternateScreen).unwrap();
@@ -197,8 +217,11 @@ impl VenvManager {
         ];
 
         // make a new menu
-        let mut menu =
-            interactive::Menu::new("Are you sure you want to delete?".to_string(), menu, false);
+        let mut menu = interactive::Menu::new(
+            format!("Are you sure you want to delete {}?", name),
+            menu,
+            false,
+        );
 
         // ask the user to select the venv from the menu
         if let Some(choice) = menu.display() {
@@ -279,6 +302,66 @@ impl VenvManager {
         for v in d.iter() {
             let fmt = format!("{}", v.text);
             eprintln!("  {}", fmt.yellow());
+        }
+    }
+
+    fn get_py_versions(&self) -> Vec<PyVersion> {
+        let mut dedup: Vec<String> = vec![];
+        let versions: Vec<PyVersion> = [
+            "python3",
+            "python3.13",
+            "python3.12",
+            "python3.11",
+            "python3.10",
+            "python3.9",
+        ]
+        .iter()
+        .map(|e| {
+            let pythons = process::Command::new("which").args(["-a", e]).output();
+            let cmd_out = String::from_utf8(pythons.unwrap().stdout).unwrap();
+            let pys: Vec<PyVersion> = cmd_out
+                .lines()
+                .filter_map(|pth| {
+                    let ver = process::Command::new(pth).args(["-V"]).output();
+                    let ver_string = String::from_utf8(ver.unwrap().stdout).unwrap();
+                    if ver_string.is_empty() {
+                        return None;
+                    }
+                    Some(
+                        ver_string
+                            .lines()
+                            .filter_map(|e| {
+                                let v = e.split_whitespace().nth(1).unwrap();
+                                if dedup.contains(&v.to_string()) {
+                                    return None;
+                                }
+                                dedup.push(v.to_string());
+                                Some(PyVersion(v.to_string(), pth.to_string()))
+                            })
+                            .collect::<Vec<PyVersion>>(),
+                    )
+                })
+                .flatten()
+                .collect();
+            pys
+        })
+        .flatten()
+        .collect();
+
+        versions
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+    #[test]
+    fn test_get_py_versions() {
+        let venv = VenvManager::new().unwrap();
+        let pys = venv.get_py_versions();
+        for v in pys {
+            println!("{}: {}", v.0, v.1);
         }
     }
 }
