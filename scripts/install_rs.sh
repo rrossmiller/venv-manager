@@ -42,7 +42,7 @@ elif [[ $appleSilicon = "n" ]]; then
 	pth=`pwd`
 	echo "building bin"
 	git clone https://github.com/rrossmiller/venv-manager/
-	cd venv-manager/src/
+	cd venv-manager/
 	./build.sh d
 	cd $pth
 	rm -rf venv-manager
