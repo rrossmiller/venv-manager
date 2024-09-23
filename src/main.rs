@@ -60,7 +60,6 @@ fn main() {
     if let Some(name) = cli.activate {
         let path = venv_manager.venv_store.to_str().unwrap();
         let cmd = format!("source {path}/{name}/bin/activate");
-        println!("{}",cmd);
         write_cmd(path, cmd);
     }
     // if there's a command run that

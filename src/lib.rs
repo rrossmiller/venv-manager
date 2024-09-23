@@ -9,7 +9,7 @@ use std::{
 use crossterm::{cursor, execute, style::Stylize, terminal};
 mod interactive;
 
-const VENV_STORE: &str = ".venv";
+const VENV_STORE: &str = ".venvs";
 // const VENV_STORE: &str = "VENV_TEMP";
 /// Encapsulating struct for the venv manager
 pub struct VenvManager {
@@ -35,7 +35,7 @@ impl VenvManager {
         home_dir.push(VENV_STORE);
         if !home_dir.exists() {
             eprintln!("creating {}", home_dir.to_str().unwrap());
-            fs::create_dir(home_dir.as_path()).expect("Error creating new .venv dir");
+            fs::create_dir(home_dir.as_path()).expect("Error creating new .venvs dir");
         }
 
         Ok(VenvManager {

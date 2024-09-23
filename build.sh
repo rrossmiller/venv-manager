@@ -12,11 +12,11 @@ if [[ $1 == 'r' ]]; then
 # build and move to current dir (then move to bin dir)
 elif [[ $1 == 'd' ]]; then
     echo "deploy release"
-    if [[ ! -d "~/.venv/bin" ]]; then
-        mkdir -p ~/.venv/bin
+    if [[ ! -d "~/.venvs/bin" ]]; then
+        mkdir -p ~/.venvs/bin
     fi
     cargo build --release &&
-    mv target/release/$binName ~/.venv/bin/$outName 
+    mv target/release/$binName ~/.venvs/bin/$outName 
 
 # build and move to current dir
 else
