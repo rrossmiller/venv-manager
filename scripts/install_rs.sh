@@ -32,12 +32,9 @@ elif [[ $os == "Darwin" && $arch != "arm64" ]]; then
 fi
 
 if [[ $appleSilicon == "y" ]]; then
-    # curl -sLJo venv_manager \
-    #     -H "Accept: application/octet-stream" \
-    #     https://github.com/rrossmiller/venv-manager/releases/download/$VERSION/rs-venv-darwin-arm64
-    cd ..
-    ./build.sh r
-
+    curl -sLJo venv_manager \
+        -H "Accept: application/octet-stream" \
+        https://github.com/rrossmiller/venv-manager/releases/download/$VERSION/rs-venv-darwin-arm64
     ok=1
 
 # build from scratch
