@@ -3,7 +3,7 @@
 ![](example.gif)
 
 ## Install
-``` 
+```sh
 curl -s https://raw.githubusercontent.com/rrossmiller/venv-manager/main/scripts/install_rs.sh | /bin/zsh
 ```
 
@@ -13,11 +13,11 @@ After reloading your shell, `venv a<Tab>` will complete to a matching environmen
 
 If you want to install it manually, copy the matching setup into `~/.zshrc` or `~/.bashrc`.
 
-```
+```sh
 function venv() {
     ~/.venvs/bin/venv_manager "$@"
     if [[ $? -eq 0 ]]; then
-        eval $(tail -n 1 ~/.venvs/.history)
+        eval "$(tail -n 1 ~/.venvs/.history)"
     fi
 }
  
@@ -34,11 +34,11 @@ compdef _venv_complete venv
 
 For bash:
 
-```
+```sh
 function venv() {
     ~/.venvs/bin/venv_manager "$@"
     if [[ $? -eq 0 ]]; then
-        eval $(tail -n 1 ~/.venvs/.history)
+        eval "$(tail -n 1 ~/.venvs/.history)"
     fi
 }
 
@@ -60,8 +60,20 @@ complete -F _venv_complete venv
 
 Then reload your shell:
 
-```
+```sh
 source ~/.zshrc
 # or
 source ~/.bashrc
 ```
+
+## Usage
+
+```sh
+venv list
+venv create my-project 3.12
+venv activate my-project
+venv delete my-project
+venv my-project
+```
+
+Running `venv` with no arguments opens the interactive picker.
