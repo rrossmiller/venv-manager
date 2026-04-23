@@ -1,6 +1,6 @@
 #! /bin/bash
 
-VERSION=0.6.0
+VERSION=0.7.0
 venv_path="$HOME/.venvs"
 clear
 # credit where credit's due: https://patorjk.com/software/taag/#p=display&f=Big%20Money-nw&t=venv%20Manager
@@ -57,7 +57,7 @@ else
     exit 1
 fi
 
-if [[ ok -eq 1 ]]; then
+if [[ $ok -eq 1 ]]; then
     # move the bin to the venv_path
     if [[ ! -d $venv_path/bin ]]; then
         mkdir -p $venv_path/bin

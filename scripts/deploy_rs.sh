@@ -1,4 +1,4 @@
-VERSION=0.6.0
+VERSION=0.6.1
 if [[ $1 == 'r' ]]; then
     clear
     bin="rs-venv-darwin-arm64"
