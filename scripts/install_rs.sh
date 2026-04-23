@@ -57,7 +57,7 @@ else
     exit 1
 fi
 
-if [[ ok -eq 1 ]]; then
+if [[ $ok -eq 1 ]]; then
     # move the bin to the venv_path
     if [[ ! -d $venv_path/bin ]]; then
         mkdir -p $venv_path/bin
