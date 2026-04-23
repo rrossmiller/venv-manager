@@ -69,24 +69,58 @@ if [[ ok -eq 1 ]]; then
     # create the venv function if it doesn't exist
 
     shell_name=$(basename "$SHELL")
-    function_definition="
+    if [[ "$shell_name" == "bash" ]]; then
+        shell_setup="
 function venv() {
-    $venv_path/bin/venv_manager \$@
+    $venv_path/bin/venv_manager \"\$@\"
     if [[ \$? -eq 0 ]]; then
-        eval \$( tail -n 1 $venv_path/.history )
+        eval \$(tail -n 1 $venv_path/.history)
     fi
 }
+
+_venv_complete() {
+    local current prev
+    COMPREPLY=()
+    current=\"\${COMP_WORDS[COMP_CWORD]}\"
+    prev=\"\${COMP_WORDS[COMP_CWORD-1]}\"
+
+    if [[ \$COMP_CWORD -eq 1 || \"\$prev\" == \"activate\" || \"\$prev\" == \"delete\" ]]; then
+        local envs
+        envs=\$($venv_path/bin/venv_manager list-names 2>/dev/null)
+        COMPREPLY=(\$(compgen -W \"\$envs\" -- \"\$current\"))
+    fi
+}
+
+complete -F _venv_complete venv
 "
-    if [[ "$shell_name" == "bash" ]]; then
-        # Check if the function is defined
+
         if ! grep -q "function venv" ~/.bashrc; then
-            echo "$function_definition" >>~/.bashrc
-            echo "Function 'venv' added to .bashrc"
+            echo "$shell_setup" >>~/.bashrc
+            echo "Function 'venv' with completion added to .bashrc"
         fi
     elif [[ "$shell_name" == "zsh" ]]; then
+        shell_setup="
+function venv() {
+    $venv_path/bin/venv_manager \"\$@\"
+    if [[ \$? -eq 0 ]]; then
+        eval \$(tail -n 1 $venv_path/.history)
+    fi
+}
+
+_venv_complete() {
+    local -a envs
+    envs=(\${(f)\"\$($venv_path/bin/venv_manager list-names 2>/dev/null)\"})
+    if (( CURRENT == 2 )) || [[ \"\$words[CURRENT-1]\" == \"activate\" ]] || [[ \"\$words[CURRENT-1]\" == \"delete\" ]]; then
+        compadd -- \$envs
+    fi
+}
+
+compdef _venv_complete venv
+"
+
         if ! grep -q "function venv" ~/.zshrc; then
-            echo "$function_definition" >>~/.zshrc
-            echo "Function 'venv' added to .zshrc"
+            echo "$shell_setup" >>~/.zshrc
+            echo "Function 'venv' with completion added to .zshrc"
         fi
     else
         echo "Unsupported shell: $shell_name. Please add the function manually."

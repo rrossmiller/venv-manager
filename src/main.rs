@@ -18,6 +18,10 @@ enum Commands {
     #[command(short_flag('l'))]
     List,
 
+    /// Print only venv names, one per line
+    #[command(hide = true)]
+    ListNames,
+
     /// Add an alias to a project
     #[command(short_flag('a'), arg_required_else_help(true))]
     Activate {
@@ -69,6 +73,12 @@ fn main() {
                 venv_manager.list();
                 None
             }
+            Commands::ListNames => {
+                for name in venv_manager.list_names() {
+                    println!("{name}");
+                }
+                None
+            }
             Commands::Activate { name } => venv_manager.activate(name),
             Commands::Create { name, version } => venv_manager.create(name, version),
             Commands::Delete { name } => venv_manager.delete(name),
@@ -82,8 +92,7 @@ fn main() {
         if let Some(cmd) = x {
             let pth = venv_manager.venv_store.to_str().unwrap();
             write_cmd(pth, cmd);
-        } else {
-            exit(3);
+            exit(0);
         }
         exit(0);
     }

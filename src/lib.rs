@@ -279,30 +279,23 @@ impl VenvManager {
     }
 
     fn get_venv_vec(&self) -> Vec<MenuItem> {
-        // put the available venv's in a menu
-        let mut menu = Vec::new();
-        let envs = fs::read_dir(&self.venv_store).unwrap();
-        for f in envs {
-            let name = f.unwrap().file_name();
-            let name = name.to_str().unwrap().to_string();
-            if name != ".history" && name != "bin" {
-                menu.push(interactive::MenuItem { text: name })
-            }
-        }
-
-        // alphabetical order
-        menu.sort_by_key(|i| i.text.clone());
-        menu
+        self.list_names()
+            .into_iter()
+            .map(|text| interactive::MenuItem { text })
+            .collect()
     }
 
     pub fn list(&self) {
         let a = "Available venvs:";
         eprintln!("{}", a.blue());
-        let d = self.get_venv_vec();
-        for v in d.iter() {
-            let fmt = format!("{}", v.text);
+        for name in self.list_names() {
+            let fmt = format!("{}", name);
             eprintln!("  {}", fmt.yellow());
         }
+    }
+
+    pub fn list_names(&self) -> Vec<String> {
+        collect_venv_names(&self.venv_store).unwrap_or_default()
     }
 
     fn get_py_versions(&self) -> Vec<PyVersion> {
@@ -352,11 +345,54 @@ impl VenvManager {
     }
 }
 
+fn collect_venv_names(store: &path::Path) -> io::Result<Vec<String>> {
+    let mut names = Vec::new();
+    for entry in fs::read_dir(store)? {
+        let entry = entry?;
+        let name = entry.file_name().to_string_lossy().to_string();
+        if name != ".history" && name != "bin" {
+            names.push(name);
+        }
+    }
+
+    names.sort();
+    Ok(names)
+}
+
 #[cfg(test)]
 mod tests {
 
     use super::*;
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    fn make_temp_store() -> path::PathBuf {
+        let mut dir = std::env::temp_dir();
+        let unique = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        dir.push(format!("venv-manager-test-{unique}"));
+        fs::create_dir_all(&dir).unwrap();
+        dir
+    }
+
     #[test]
+    fn list_names_filters_internal_entries_and_sorts() {
+        let store = make_temp_store();
+        fs::create_dir(store.join("zeta")).unwrap();
+        fs::create_dir(store.join("api")).unwrap();
+        fs::create_dir(store.join("bin")).unwrap();
+        fs::write(store.join(".history"), "").unwrap();
+
+        let names = collect_venv_names(&store).unwrap();
+
+        assert_eq!(names, vec!["api".to_string(), "zeta".to_string()]);
+
+        fs::remove_dir_all(store).unwrap();
+    }
+
+    #[test]
+    #[ignore = "depends on locally installed Python interpreters"]
     fn test_get_py_versions() {
         let venv = VenvManager::new().unwrap();
         let pys = venv.get_py_versions();
