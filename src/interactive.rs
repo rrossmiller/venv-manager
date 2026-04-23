@@ -114,8 +114,17 @@ impl Menu {
     }
 
     fn filter_menu_items(&mut self, query: &str) {
-        self.menu_items = self.f_menu_items.clone();
-        self.menu_items.retain(|e| e.text.starts_with(query));
+        let query = query.to_lowercase();
+        self.menu_items = self
+            .f_menu_items
+            .iter()
+            .filter(|item| item.text.to_lowercase().contains(&query))
+            .cloned()
+            .collect();
+
+        if self.menu_items.is_empty() || self.cursor_pos >= self.menu_items.len() {
+            self.cursor_pos = 0;
+        }
     }
 
     fn render_menu_items(&self, out: &mut io::Stdout, redraw: bool, active_search: bool) {
@@ -167,6 +176,9 @@ impl Menu {
                 event::KeyCode::Esc => return Some(UserChoice::Quit),
                 // move up
                 event::KeyCode::Up | event::KeyCode::Char('k') => {
+                    if self.menu_items.is_empty() {
+                        return None;
+                    }
                     if self.cursor_pos > 0 {
                         self.cursor_pos -= 1;
                     } else {
@@ -176,6 +188,9 @@ impl Menu {
                 }
                 // move down
                 event::KeyCode::Down | event::KeyCode::Char('j') => {
+                    if self.menu_items.is_empty() {
+                        return None;
+                    }
                     if self.cursor_pos < self.menu_items.len() - 1 {
                         self.cursor_pos += 1;
                     } else {
@@ -188,7 +203,12 @@ impl Menu {
                     return Some(UserChoice::Search);
                 }
                 // submit
-                event::KeyCode::Enter => return Some(UserChoice::Choice(self.cursor_pos)),
+                event::KeyCode::Enter => {
+                    if self.menu_items.is_empty() {
+                        return None;
+                    }
+                    return Some(UserChoice::Choice(self.cursor_pos));
+                }
                 _ => {} // do nothing if it's not one of the previous keys
             }
         } else {
@@ -226,5 +246,53 @@ impl Menu {
             }
         }
         return true;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{Menu, MenuItem};
+
+    #[test]
+    fn filter_is_case_insensitive_and_matches_substrings() {
+        let mut menu = Menu::new(
+            "Choose".to_string(),
+            vec![
+                MenuItem {
+                    text: "Alpha".to_string(),
+                },
+                MenuItem {
+                    text: "beta".to_string(),
+                },
+            ],
+            true,
+        );
+
+        menu.filter_menu_items("ET");
+
+        assert_eq!(menu.menu_items.len(), 1);
+        assert_eq!(menu.menu_items[0].text, "beta");
+    }
+
+    #[test]
+    fn filter_resets_cursor_when_result_set_shrinks() {
+        let mut menu = Menu::new(
+            "Choose".to_string(),
+            vec![
+                MenuItem {
+                    text: "alpha".to_string(),
+                },
+                MenuItem {
+                    text: "beta".to_string(),
+                },
+            ],
+            true,
+        );
+        menu.cursor_pos = 1;
+
+        menu.filter_menu_items("alpha");
+
+        assert_eq!(menu.cursor_pos, 0);
+        assert_eq!(menu.menu_items.len(), 1);
     }
 }
