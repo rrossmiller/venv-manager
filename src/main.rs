@@ -1,4 +1,5 @@
 use clap::{CommandFactory, Parser, Subcommand};
+use clap_complete::{ArgValueCompleter, CompleteEnv};
 use std::{fs, process::exit};
 use venv::VenvManager;
 
@@ -10,7 +11,11 @@ use venv::VenvManager;
     long_about = None
 )]
 pub struct CLI {
-    #[arg(value_name = "NAME", help = "Activate a venv by name")]
+    #[arg(
+        value_name = "NAME",
+        help = "Activate a venv by name",
+        add = ArgValueCompleter::new(venv::complete_venv_name)
+    )]
     activate: Option<String>,
     #[command(subcommand)]
     command: Option<Commands>,
@@ -26,7 +31,10 @@ enum Commands {
     /// Activate a virtual environment
     #[command(short_flag('a'), arg_required_else_help(true))]
     Activate {
-        #[arg(value_name = "NAME")]
+        #[arg(
+            value_name = "NAME",
+            add = ArgValueCompleter::new(venv::complete_venv_name)
+        )]
         name: String,
     },
 
@@ -42,7 +50,10 @@ enum Commands {
     /// Delete a virtual environment
     #[command(short_flag('d'), arg_required_else_help(true))]
     Delete {
-        #[arg(value_name = "NAME")]
+        #[arg(
+            value_name = "NAME",
+            add = ArgValueCompleter::new(venv::complete_venv_name)
+        )]
         name: String,
     },
 
@@ -51,11 +62,20 @@ enum Commands {
     Completions {
         /// The shell to generate the completions for
         #[arg(value_enum)]
-        shell: clap_complete_command::Shell,
+        shell: clap_complete::Shell,
     },
 }
 
 fn main() {
+    let completer = std::env::current_exe()
+        .expect("unable to locate the venv executable")
+        .to_string_lossy()
+        .into_owned();
+    CompleteEnv::with_factory(CLI::command)
+        .bin("venv")
+        .completer(completer)
+        .complete();
+
     // Get the program options
     let cli = CLI::parse();
 
@@ -88,7 +108,7 @@ fn main() {
 
             // e.g. `$ cli completions bash`
             Commands::Completions { shell } => {
-                shell.generate(&mut CLI::command(), &mut std::io::stdout());
+                clap_complete::generate(shell, &mut CLI::command(), "venv", &mut std::io::stdout());
                 None
             }
         };

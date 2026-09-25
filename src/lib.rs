@@ -1,12 +1,14 @@
 use home;
 use interactive::MenuItem;
 use std::{
+    ffi::OsStr,
     fs,
     io::{self, Write},
     path::{self, PathBuf},
     process,
 };
 
+use clap_complete::CompletionCandidate;
 use crossterm::{cursor, execute, style::Stylize, terminal};
 mod interactive;
 
@@ -254,6 +256,41 @@ impl VenvManager {
         }
     }
 
+    /// Return matching virtual environments for dynamic shell completion.
+    ///
+    /// Each candidate includes its Python version, when available, and its
+    /// location so shells that support descriptions can display useful context.
+    pub fn completion_candidates(&self, current: &OsStr) -> io::Result<Vec<CompletionCandidate>> {
+        let mut venv_paths = fs::read_dir(&self.venv_store)?
+            .map(|entry_result| {
+                let entry = entry_result?;
+                let file_type = entry.file_type()?;
+                Ok((entry.file_name(), entry.path(), file_type.is_dir()))
+            })
+            .collect::<io::Result<Vec<_>>>()?;
+
+        venv_paths.retain(|(name, _, is_directory)| {
+            *is_directory
+                && name != OsStr::new("bin")
+                && name != OsStr::new(".history")
+                && name
+                    .as_encoded_bytes()
+                    .starts_with(current.as_encoded_bytes())
+        });
+        venv_paths.sort_by(|left, right| left.0.cmp(&right.0));
+
+        venv_paths
+            .into_iter()
+            .map(|(name, path, _)| {
+                let description = match python_version(&path)? {
+                    Some(version) => format!("Python {version} — {}", path.display()),
+                    None => path.display().to_string(),
+                };
+                Ok(CompletionCandidate::new(name).help(Some(description.into())))
+            })
+            .collect()
+    }
+
     fn get_py_versions(&self) -> Vec<PyVersion> {
         let mut dedup: Vec<String> = vec![];
         let versions: Vec<PyVersion> = [
@@ -348,6 +385,27 @@ impl VenvManager {
     }
 }
 
+/// Complete a virtual-environment name from the default venv store.
+pub fn complete_venv_name(current: &OsStr) -> Vec<CompletionCandidate> {
+    let manager = VenvManager::new().expect("unable to locate the virtual-environment store");
+    manager
+        .completion_candidates(current)
+        .unwrap_or_else(|error| panic!("unable to read available virtual environments: {error}"))
+}
+
+fn python_version(venv_path: &path::Path) -> io::Result<Option<String>> {
+    let config = match fs::read_to_string(venv_path.join("pyvenv.cfg")) {
+        Ok(config) => config,
+        Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(None),
+        Err(error) => return Err(error),
+    };
+
+    Ok(config.lines().find_map(|line| {
+        let (key, value) = line.split_once('=')?;
+        (key.trim() == "version").then(|| value.trim().to_string())
+    }))
+}
+
 fn normalize_python_command(version: Option<&str>) -> String {
     match version {
         Some(version) if version.starts_with("python") => version.to_string(),
@@ -368,6 +426,7 @@ fn shell_escape(value: &str) -> String {
 mod tests {
 
     use super::*;
+    use std::ffi::OsStr;
     use std::time::{SystemTime, UNIX_EPOCH};
 
     fn test_manager() -> VenvManager {
@@ -378,6 +437,69 @@ mod tests {
         VenvManager {
             venv_store: std::env::temp_dir().join(format!("venv-manager-{unique}")),
         }
+    }
+
+    fn create_test_venv(
+        manager: &VenvManager,
+        name: &str,
+        version: Option<&str>,
+    ) -> io::Result<()> {
+        let venv_path = manager.venv_store.join(name);
+        fs::create_dir_all(&venv_path)?;
+        if let Some(version) = version {
+            fs::write(
+                venv_path.join("pyvenv.cfg"),
+                format!("home = /usr/local/bin\nversion = {version}\n"),
+            )?;
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn completion_candidates_are_sorted_filtered_and_described() -> io::Result<()> {
+        let manager = test_manager();
+        fs::create_dir_all(&manager.venv_store)?;
+        create_test_venv(&manager, "api", Some("3.12.7"))?;
+        create_test_venv(&manager, "analytics", Some("3.11.10"))?;
+        create_test_venv(&manager, "web", Some("3.13.1"))?;
+        fs::create_dir(manager.venv_store.join("bin"))?;
+        fs::write(
+            manager.venv_store.join(".history"),
+            "source old/bin/activate",
+        )?;
+
+        let candidates = manager.completion_candidates(OsStr::new("a"))?;
+
+        let values: Vec<_> = candidates
+            .iter()
+            .map(|candidate| candidate.get_value().to_string_lossy())
+            .collect();
+        assert_eq!(values, ["analytics", "api"]);
+        assert_eq!(
+            candidates[0].get_help().map(ToString::to_string),
+            Some(format!(
+                "Python 3.11.10 — {}",
+                manager.venv_store.join("analytics").display()
+            ))
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn completion_candidate_without_config_still_has_a_location() -> io::Result<()> {
+        let manager = test_manager();
+        fs::create_dir_all(&manager.venv_store)?;
+        create_test_venv(&manager, "unfinished", None)?;
+
+        let candidates = manager.completion_candidates(OsStr::new(""))?;
+
+        assert_eq!(candidates.len(), 1);
+        assert_eq!(candidates[0].get_value(), OsStr::new("unfinished"));
+        assert_eq!(
+            candidates[0].get_help().map(ToString::to_string),
+            Some(manager.venv_store.join("unfinished").display().to_string())
+        );
+        Ok(())
     }
 
     #[test]

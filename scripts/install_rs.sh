@@ -71,26 +71,30 @@ if [[ $ok -eq 1 ]]; then
     shell_name=$(basename "$SHELL")
     function_definition="
 function venv() {
-    $venv_path/bin/venv_manager \$@
+    \"$venv_path/bin/venv_manager\" \"\$@\"
     if [[ \$? -eq 0 ]]; then
         eval \$( tail -n 1 $venv_path/.history )
     fi
 }
 "
     if [[ "$shell_name" == "bash" ]]; then
-        # Check if the function is defined
-        if ! grep -q "function venv" ~/.bashrc; then
-            echo "$function_definition" >>~/.bashrc
-            echo "Function 'venv' added to .bashrc"
-        fi
+        shell_config="$HOME/.bashrc"
     elif [[ "$shell_name" == "zsh" ]]; then
-        if ! grep -q "function venv" ~/.zshrc; then
-            echo "$function_definition" >>~/.zshrc
-            echo "Function 'venv' added to .zshrc"
-        fi
+        shell_config="$HOME/.zshrc"
     else
         echo "Unsupported shell: $shell_name. Please add the function manually."
         exit 0
+    fi
+
+    if ! grep -q "function venv" "$shell_config"; then
+        echo "$function_definition" >>"$shell_config"
+        echo "Function 'venv' added to $shell_config"
+    fi
+
+    completion_definition="source <(COMPLETE=$shell_name \"$venv_path/bin/venv_manager\")"
+    if ! grep -Fq "$completion_definition" "$shell_config"; then
+        echo "$completion_definition" >>"$shell_config"
+        echo "Tab completion for 'venv' added to $shell_config"
     fi
 
     echo

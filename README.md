@@ -17,6 +17,9 @@ function venv() {
         eval "$(tail -n 1 ~/.venvs/.history)"
     fi
 }
+
+# Load dynamic completions for Bash or Zsh.
+source <(COMPLETE="${SHELL##*/}" ~/.venvs/bin/venv_manager)
 ```
 
 Then reload your shell:
@@ -37,3 +40,19 @@ venv my-project
 ```
 
 Running `venv` with no arguments opens the interactive picker.
+
+## Tab completion
+
+The installer enables dynamic completion for Bash and Zsh. Type `venv <tab>`
+to complete an environment name or subcommand. Environment names are also
+completed after `venv activate` and `venv delete`.
+
+Completions are read from `~/.venvs` each time, so newly created or deleted
+environments appear immediately. Shells that support completion descriptions
+also show the Python version from `pyvenv.cfg` and the environment's path.
+
+To enable completion manually in the current shell:
+
+```sh
+source <(COMPLETE="${SHELL##*/}" ~/.venvs/bin/venv_manager)
+```
