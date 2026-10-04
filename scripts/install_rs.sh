@@ -69,24 +69,19 @@ if [[ $ok -eq 1 ]]; then
     # create the venv function if it doesn't exist
 
     shell_name=$(basename "$SHELL")
-    function_definition="
-function venv() {
-    $venv_path/bin/venv_manager \$@
-    if [[ \$? -eq 0 ]]; then
-        eval \$( tail -n 1 $venv_path/.history )
-    fi
-}
-"
+    function_definition = "eval \"\$($venv_path/bin/venv_manager init)\""
     if [[ "$shell_name" == "bash" ]]; then
         # Check if the function is defined
         if ! grep -q "function venv" ~/.bashrc; then
+            echo "# venv setup" >>~/.bashrc
             echo "$function_definition" >>~/.bashrc
-            echo "Function 'venv' added to .bashrc"
+            echo "venv added to .bashrc"
         fi
     elif [[ "$shell_name" == "zsh" ]]; then
         if ! grep -q "function venv" ~/.zshrc; then
+            echo "# venv setup" >>~/.zshrc
             echo "$function_definition" >>~/.zshrc
-            echo "Function 'venv' added to .zshrc"
+            echo "venv added to .zshrc"
         fi
     else
         echo "Unsupported shell: $shell_name. Please add the function manually."

@@ -47,12 +47,17 @@ enum Commands {
     },
 
     /// Generate shell completions
-    #[clap(alias = "--generate-shell-completion", hide = true)]
+    #[clap(alias = "--generate-shell-completion")]
     Completions {
         /// The shell to generate the completions for
         #[arg(value_enum)]
         shell: clap_complete_command::Shell,
     },
+
+    /// Initialize the tool in the shell.
+    /// Lives in the user's shell .rc file and called on startup
+    #[command()]
+    Init {},
 }
 
 fn main() {
@@ -91,10 +96,31 @@ fn main() {
                 shell.generate(&mut CLI::command(), &mut std::io::stdout());
                 None
             }
+            Commands::Init {} => {
+                //TODO: parameterize where the home dir actually is
+                let home_dir = home::home_dir().expect("unable to resolve the home dir");
+                let home_dir = home_dir
+                    .to_str()
+                    .expect("unable to resolve home dir into a string");
+
+                let cmd = format!(
+                    "function venv() {{
+    {}/.venvs/bin/venv_manager $@
+    if [[ $? -eq 0 ]]; then
+        eval $( tail -n 1 /Users/robrossmiller/.venvs/.history )
+    fi
+}}",
+                    home_dir
+                );
+
+                print!("{}", cmd);
+                None
+            }
         };
         if let Some(cmd) = generated_cmd {
-            let pth = venv_manager.venv_store.to_str().unwrap();
-            write_cmd(pth, cmd);
+            print!("{}", cmd);
+            // let pth = venv_manager.venv_store.to_str().unwrap();
+            // write_cmd(pth, cmd);
         }
         exit(0);
     }
@@ -102,8 +128,9 @@ fn main() {
     else {
         // interactive mode
         if let Some(cmd) = venv_manager.interactive() {
-            let pth = venv_manager.venv_store.to_str().unwrap();
-            write_cmd(pth, cmd);
+            print!("{}", cmd);
+            // let pth = venv_manager.venv_store.to_str().unwrap();
+            // write_cmd(pth, cmd);
         } else {
             // exit and don't run the command
             exit(3);
